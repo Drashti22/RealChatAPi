@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\admin\\OneDrive\\Desktop\\BharatLaw\\Backend\\RealChatApi\\RealChatApi\\RealChatApi.csproj": {}
+    "C:\\Users\\admin\\OneDrive\\Desktop\\Promact Internship\\Real Time Chat Application\\Back end\\RealChatApi\\RealChatApi\\RealChatApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\admin\\OneDrive\\Desktop\\BharatLaw\\Backend\\RealChatApi\\RealChatApi\\RealChatApi.csproj": {
+    "C:\\Users\\admin\\OneDrive\\Desktop\\Promact Internship\\Real Time Chat Application\\Back end\\RealChatApi\\RealChatApi\\RealChatApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\admin\\OneDrive\\Desktop\\BharatLaw\\Backend\\RealChatApi\\RealChatApi\\RealChatApi.csproj",
+        "projectUniqueName": "C:\\Users\\admin\\OneDrive\\Desktop\\Promact Internship\\Real Time Chat Application\\Back end\\RealChatApi\\RealChatApi\\RealChatApi.csproj",
         "projectName": "RealChatApi",
-        "projectPath": "C:\\Users\\admin\\OneDrive\\Desktop\\BharatLaw\\Backend\\RealChatApi\\RealChatApi\\RealChatApi.csproj",
+        "projectPath": "C:\\Users\\admin\\OneDrive\\Desktop\\Promact Internship\\Real Time Chat Application\\Back end\\RealChatApi\\RealChatApi\\RealChatApi.csproj",
         "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\admin\\OneDrive\\Desktop\\BharatLaw\\Backend\\RealChatApi\\RealChatApi\\obj\\",
+        "outputPath": "C:\\Users\\admin\\OneDrive\\Desktop\\Promact Internship\\Real Time Chat Application\\Back end\\RealChatApi\\RealChatApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -41,13 +41,39 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.9, )"
             },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[7.0.10, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
+            },
+            "Swashbuckle.AspNetCore.Filters": {
+              "target": "Package",
+              "version": "[7.0.11, )"
             }
           },
           "imports": [
