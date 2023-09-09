@@ -8,7 +8,9 @@ namespace RealChatApi.Services
     public interface IUserService
     {
         Task<IdentityResult> RegisterUserAsync(RegisterRequestDTO requestDTO);
-        Task<LoginResponseDto> LoginUserAsync(LoginRequestDto requestDTO);
+        Task<IActionResult> LoginUserAsync(LoginRequestDto requestDTO);
+
+        Task<IActionResult> GetAllUsers();
 
     }
 }

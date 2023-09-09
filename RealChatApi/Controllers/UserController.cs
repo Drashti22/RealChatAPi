@@ -20,15 +20,16 @@ namespace RealChatApi.Controllers
 
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UserController(IUserService userService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public UserController(IUserService userService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager )
         {
             _userService = userService;
             _userManager = userManager;
             _signInManager = signInManager;
+           
         }
 
 
-            [HttpPost("register")]
+        [HttpPost("register")]
         public async Task<IActionResult> RegisterUserAsync([FromBody] RegisterRequestDTO userobj)
         {
             var result = await _userService.RegisterUserAsync(userobj);
@@ -58,32 +59,21 @@ namespace RealChatApi.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> LoginUserAsync([FromBody] LoginRequestDto userobj)
         {
-            var user = await _userManager.FindByEmailAsync(userobj.email);
-            var result = await _signInManager.CheckPasswordSignInAsync(user, userobj.password, lockoutOnFailure: false);
-            if (result.Succeeded)
-            {
+            return await _userService.LoginUserAsync(userobj);
+        }
 
-                var responseDto = new LoginResponseDto
-                {
-                    name = user.Name,
-                    email = user.Email,
-                    Token = user.Token,         
-
-                };
-                return Ok(new
-                {
-                    token = responseDto.Token,
-                    Message = "Login Successful",
-                    Profile = responseDto
-                });
-                ;
-            }
-            else
-            {
-                return BadRequest(new { Message = "Login failed due to invalid credentials" });
-            }
+        //[HttpPost("GoogleLogin")]
+        //public async Task<IdentityResult> GoogleAuthentication([FromBody] GoogleAuthDto requestDto)
+        //{
+        //    return await _userService.GoogleAuthentication(requestDto);
             
+        //}
 
+        [Authorize]
+        [HttpGet("users")]
+        public async Task <IActionResult> GetAllUsers()
+        {
+            return await _userService.GetAllUsers();
         }
     } 
 }

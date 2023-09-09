@@ -84,3 +84,13 @@ C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Ba
 C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Scrutor.dll
 C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Swashbuckle.AspNetCore.Filters.dll
 C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Swashbuckle.AspNetCore.Filters.Abstractions.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.Practices.EnterpriseLibrary.Common.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.Practices.EnterpriseLibrary.Validation.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Google.Apis.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Google.Apis.Auth.PlatformServices.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Google.Apis.Auth.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Google.Apis.Core.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Lucene.Net.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.Google.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Newtonsoft.Json.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\ICSharpCode.SharpZipLib.dll
