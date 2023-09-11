@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RealChatApi;
 using RealChatApi.Interfaces;
 using RealChatApi.Middleware;
 using RealChatApi.Repositories;
@@ -67,8 +68,19 @@ builder.Services.AddAuthentication(x =>
     };
 }).AddGoogle(options =>
 {
-    options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-    options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+    options.ClientId = "414420117584-8ggttrr52sgf1cge36h8argahdv4nkaj.apps.googleusercontent.com";
+    options.ClientSecret = "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";
+    options.CallbackPath = "/signin-google";
+});
+
+builder.Services.AddSignalR();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSwagger",
+        builder => builder.AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
 });
 
 var app = builder.Build();
@@ -80,11 +92,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.MapControllers();
+app.UseCors("AllowSwagger");
 
 app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.MapHub<ChatHub>("chat-hub");
 
 app.Run();

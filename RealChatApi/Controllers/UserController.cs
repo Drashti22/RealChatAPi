@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RealChatApi.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication;
+using System.Security.Claims;
 
 namespace RealChatApi.Controllers
 {
@@ -66,14 +68,36 @@ namespace RealChatApi.Controllers
         //public async Task<IdentityResult> GoogleAuthentication([FromBody] GoogleAuthDto requestDto)
         //{
         //    return await _userService.GoogleAuthentication(requestDto);
-            
+
         //}
 
         [Authorize]
         [HttpGet("users")]
-        public async Task <IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
             return await _userService.GetAllUsers();
         }
-    } 
+        [HttpGet("google")]
+        public IActionResult AuthenticateWithGoogle()
+        {
+            return Challenge(new AuthenticationProperties { RedirectUri = "/signin-google" }, "Google");
+        }
+        [HttpGet("google-callback")]
+        public async Task<IActionResult> AuthenticateWithGoogleCallback()
+        {
+            var result = await HttpContext.AuthenticateAsync("Google");
+            if (!result.Succeeded)
+            {
+
+                var exception = result.Failure;
+                // Log or debug the exception details to identify the issue
+                Console.WriteLine("Exception", exception);
+                // Handle authentication failure
+                return Unauthorized();
+            }
+            // Authentication successful, access user information from result.Principal
+            // Example: var userId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            return Ok(new { message = "Authentication successful" });
+        }
+    }
 }

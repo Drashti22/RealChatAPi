@@ -94,3 +94,12 @@ C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Ba
 C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.Google.dll
 C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Newtonsoft.Json.dll
 C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\ICSharpCode.SharpZipLib.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.Connections.Abstractions.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.Http.Connections.Client.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.Http.Connections.Common.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.SignalR.Client.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.SignalR.Client.Core.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.SignalR.Common.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.AspNetCore.SignalR.Protocols.Json.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.Extensions.Features.dll
+C:\Users\admin\OneDrive\Desktop\Promact Internship\Real Time Chat Application\Back end\RealChatApi\RealChatApi\bin\Debug\net7.0\Microsoft.Extensions.Logging.Abstractions.dll
