@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RealChatApi.Interfaces;
+using RealChatApi.Middleware;
 using RealChatApi.Repositories;
 using RealChatApi.Services;
 using Swashbuckle.AspNetCore.Filters;
@@ -44,6 +45,8 @@ builder.Services.AddScoped<SignInManager<ApplicationUser>>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<ILogService, LogService>();
+builder.Services.AddScoped<ILogRepository, LogRepository>();
 
 
 
@@ -80,7 +83,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
 app.MapControllers();
+
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.Run();
