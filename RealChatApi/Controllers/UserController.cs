@@ -8,6 +8,10 @@ using RealChatApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace RealChatApi.Controllers
 {
@@ -77,27 +81,86 @@ namespace RealChatApi.Controllers
         {
             return await _userService.GetAllUsers();
         }
-        [HttpGet("google")]
-        public IActionResult AuthenticateWithGoogle()
-        {
-            return Challenge(new AuthenticationProperties { RedirectUri = "/signin-google" }, "Google");
-        }
-        [HttpGet("google-callback")]
-        public async Task<IActionResult> AuthenticateWithGoogleCallback()
-        {
-            var result = await HttpContext.AuthenticateAsync("Google");
-            if (!result.Succeeded)
-            {
+        //[HttpGet("google")]
+        //public IActionResult AuthenticateWithGoogle()
+        //{
+        //    var properties = new AuthenticationProperties
+        //    {
+        //        RedirectUri = Url.Action("AuthenticateWithGoogleCallback")
+        //    };
+        //    return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        //}
+        //[HttpGet("google-callback")]
+        //public async Task<IActionResult> AuthenticateWithGoogleCallback()
+        //{
+        //    var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+        //    if (!result.Succeeded)
+        //    {
+        //        var exception = result.Failure;
+        //        Console.WriteLine("Exception", exception);
+        //        return Unauthorized(new { message = "Google authentication failed." });
+        //    }
 
-                var exception = result.Failure;
-                // Log or debug the exception details to identify the issue
-                Console.WriteLine("Exception", exception);
-                // Handle authentication failure
-                return Unauthorized();
-            }
-            // Authentication successful, access user information from result.Principal
-            // Example: var userId = result.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return Ok(new { message = "Authentication successful" });
-        }
+        //    // Authentication successful, access user information from result.Principal
+        //    var user = result.Principal;
+
+        //    // Extract the user's name and email from the user's claims
+        //    var name = user.FindFirst(ClaimTypes.Name)?.Value;
+        //    var email = user.FindFirst(ClaimTypes.Email)?.Value;
+
+        //    // Generate JWT token
+        //    var token = GenerateJwtToken(name, email);
+
+        //    // Return the token along with user information
+        //    return Ok(new
+        //    {
+        //        message = "Google authentication successful",
+        //        token = token,
+        //        name = name,
+        //        email = email
+        //    });
+        //}
+
+        //[HttpPost("GoogleAuthenticate")]
+        //public async Task<IActionResult> GoogleAuthenticate([FromBody] GoogleAuthDto request)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState.Values.SelectMany(it => it.Errors).Select(it => it.ErrorMessage));
+        //    }
+
+        //    var user = await _userService.AuthenticateGoogleUserAsync(request);
+
+        //    if (user != null)
+        //    {
+        //        var token = createJwtToken(user);
+        //        return Ok(new { token = token });
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(new { Message = "Google authentication failed." });
+        //    }
+        //}
+
+        //private string createJwtToken(ApplicationUser user)
+        //{
+        //    var jwtTokenHandler = new JwtSecurityTokenHandler();
+        //    var key = Encoding.ASCII.GetBytes("This is my 128 bits very long secret key.......");
+        //    var identity = new ClaimsIdentity(new Claim[]
+        //    {
+        //            new Claim(ClaimTypes.Name, $"{user.Name}"),
+        //            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
+        //    });
+        //    var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+        //    var tokenDescriptor = new SecurityTokenDescriptor
+        //    {
+        //        Subject = identity,
+        //        Expires = DateTime.Now.AddDays(3),
+        //        SigningCredentials = credentials,
+        //    };
+        //    var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+        //    return jwtTokenHandler.WriteToken(token);
+        //}
     }
 }

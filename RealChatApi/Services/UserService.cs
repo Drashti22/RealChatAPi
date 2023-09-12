@@ -1,16 +1,15 @@
-﻿using Google.Apis.Auth;
-using Lucene.Net.Index;
+﻿
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Practices.EnterpriseLibrary.Validation.Configuration;
 using RealChatApi.DTOs;
-    using RealChatApi.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using static Google.Apis.Auth.GoogleJsonWebSignature;
+
 
 namespace RealChatApi.Services
     {
@@ -46,9 +45,9 @@ namespace RealChatApi.Services
                     Name = requestDTO.Name,
                     UserName = requestDTO.Email,
                     Email = requestDTO.Email,
-                   
-                    
-                
+                    Token = ""
+
+
                 };
                 var result = await _userManager.CreateAsync(newUser, requestDTO.Password);
                 return result;
@@ -107,7 +106,7 @@ namespace RealChatApi.Services
         //}
 
 
-        private string createJwtToken(ApplicationUser user)
+        public string createJwtToken(ApplicationUser user)
             {
                 var jwtTokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes("This is my 128 bits very long secret key.......");
@@ -162,6 +161,77 @@ namespace RealChatApi.Services
             })
             .ToListAsync();
             return new OkObjectResult(new { users = userList });
+        }
+
+        public async Task<ApplicationUser> AuthenticateGoogleUserAsync(GoogleAuthDto request)
+        {
+            try
+            {
+                Payload payload = await ValidateAsync(request.IdToken, new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { _configuration["Authentication:Google:ClientId"] }
+                });
+                if (payload == null)
+                {
+                    // Handle the case where the payload is null (authentication failed)
+                    // You can return an error response or take appropriate action here
+                    return null;
+                }
+
+                return await GetOrCreateExternalLoginUser(GoogleAuthDto.PROVIDER, payload.Subject, payload.Email, payload.GivenName, payload.FamilyName);
+            }
+            catch(Exception ex) 
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return null;
+            }
+        }
+
+
+        private async Task<ApplicationUser> GetOrCreateExternalLoginUser(string provider, string key, string email, string firstName, string lastName)
+        {
+            var user = await _userManager.FindByLoginAsync(provider, key);
+
+
+            if (user != null)
+                return user;
+
+            user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                // If the email is not found, try to create the user with the provided firstName as the username
+                user = new ApplicationUser
+                {
+                    Email = email,
+                    UserName = firstName,
+                    Id = key,
+                };
+
+            }
+            var userName = await _userManager.FindByNameAsync(firstName);
+            if (userName != null)
+            {
+                // If the email exists and the username (firstName) is also taken, generate a unique username
+                string newUserName = firstName;
+                int count = 1;
+                while (userName != null)
+                {
+                    newUserName = $"{firstName}{count:D2}"; // Appending a unique number to the username
+                    userName = await _userManager.FindByNameAsync(newUserName);
+                    count++;
+                }
+                user.UserName = newUserName;
+                await _userManager.UpdateAsync(user);
+            }
+            await _userManager.CreateAsync(user);
+            var info = new UserLoginInfo(provider, key, provider.ToUpperInvariant());
+            var result = await _userManager.AddLoginAsync(user, info);
+
+            if (result.Succeeded)
+                return user;
+
+            return null;
         }
     }
 

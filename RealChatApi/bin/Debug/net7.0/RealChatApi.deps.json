@@ -10,7 +10,6 @@
         "dependencies": {
           "EnterpriseLibrary.Validation": "6.0.1304",
           "Google.Apis.Auth": "1.62.0",
-          "Lucene.Net": "3.0.3",
           "Microsoft.AspNetCore.Authentication.Google": "7.0.10",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "7.0.10",
           "Microsoft.AspNetCore.Identity.EntityFrameworkCore": "7.0.10",
@@ -123,17 +122,6 @@
           "lib/net6.0/Humanizer.dll": {
             "assemblyVersion": "2.14.0.0",
             "fileVersion": "2.14.1.48190"
-          }
-        }
-      },
-      "Lucene.Net/3.0.3": {
-        "dependencies": {
-          "SharpZipLib": "0.86.0"
-        },
-        "runtime": {
-          "lib/NET40/Lucene.Net.dll": {
-            "assemblyVersion": "3.0.3.0",
-            "fileVersion": "3.0.3.0"
           }
         }
       },
@@ -690,14 +678,6 @@
           }
         }
       },
-      "SharpZipLib/0.86.0": {
-        "runtime": {
-          "lib/20/ICSharpCode.SharpZipLib.dll": {
-            "assemblyVersion": "0.86.0.518",
-            "fileVersion": "0.86.0.518"
-          }
-        }
-      },
       "Swashbuckle.AspNetCore/6.5.0": {
         "dependencies": {
           "Microsoft.Extensions.ApiDescription.Server": "6.0.5",
@@ -1049,13 +1029,6 @@
       "sha512": "sha512-lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "path": "humanizer.core/2.14.1",
       "hashPath": "humanizer.core.2.14.1.nupkg.sha512"
-    },
-    "Lucene.Net/3.0.3": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-A/70q4eDcuuafQeDB9eaiDP9FQG7X29T4VIYRphS7Wk8kAM9gNcfVqYyd0H8BJ1BTpA5C1ORm9RzFn4BiNavrw==",
-      "path": "lucene.net/3.0.3",
-      "hashPath": "lucene.net.3.0.3.nupkg.sha512"
     },
     "Microsoft.AspNetCore.Authentication.Google/7.0.10": {
       "type": "package",
@@ -1441,13 +1414,6 @@
       "sha512": "sha512-BwqCnFzp2/Z+pq17iztxlIkR/ZANyPRR4PdE57WL1w/JW4AM/2imoxBWTL3+G+YXA46ce4s9OUgwWqTXYrtI8A==",
       "path": "scrutor/3.3.0",
       "hashPath": "scrutor.3.3.0.nupkg.sha512"
-    },
-    "SharpZipLib/0.86.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-5DbS1SlKLMi+WG00Cm0ueYf2oyXJrowETQk8nx96rmdjTuHsA3laPykGV7Sxi0R5Xxfx0Kh/EfacAZ1f6M7y/g==",
-      "path": "sharpziplib/0.86.0",
-      "hashPath": "sharpziplib.0.86.0.nupkg.sha512"
     },
     "Swashbuckle.AspNetCore/6.5.0": {
       "type": "package",
