@@ -70,7 +70,6 @@ builder.Services.AddAuthentication(x =>
 {
     options.ClientId = "414420117584-8ggttrr52sgf1cge36h8argahdv4nkaj.apps.googleusercontent.com";
     options.ClientSecret = "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";
-    options.CallbackPath = "/signin-google";
 });
 
 builder.Services.AddSignalR();
@@ -78,7 +77,8 @@ builder.Services.AddSignalR();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSwagger",
-        builder => builder.AllowAnyOrigin()
+        builder => builder.
+            AllowAnyOrigin()
         .AllowAnyMethod()
         .AllowAnyHeader());
 });
