@@ -12,7 +12,7 @@ namespace RealChatApi.Services
             _logRepository = logRepository;
         }
 
-        public async Task<IActionResult> getLogs(string timeframe, string startTime, string endTime)
+        public async Task<IActionResult> getLogs( string startTime, string endTime)
         {
             DateTime? parsedStartTime = ParseDateTime(startTime);
             DateTime? parsedEndTime = ParseDateTime(endTime);
@@ -23,12 +23,6 @@ namespace RealChatApi.Services
             if (parsedEndTime == null)
                 parsedEndTime = DateTime.Now;
 
-            switch (timeframe)
-            {
-
-                default:
-                    break;
-            }
             var logs = await _logRepository.getLogs(parsedStartTime, parsedEndTime);
 
             if (logs == null)

@@ -17,13 +17,13 @@ namespace RealChatApi.Repositories
             _applicationDbContext = applicationDbContext;
         }
 
-        public async Task<IActionResult> getLogs(DateTime? parsedStartTime, DateTime? parsedEndTime)
+        public async Task<IQueryable<Log>> getLogs(DateTime? parsedStartTime, DateTime? parsedEndTime)
         {
-          var logs = await _applicationDbContext.Logs
-                .Where(log => log.TimeStamp >= parsedStartTime && log.TimeStamp <= parsedEndTime)
-                .ToListAsync();
+            var logs =  _applicationDbContext.Logs
+                  .Where(log => log.TimeStamp >= parsedStartTime && log.TimeStamp <= parsedEndTime);
+                
 
-            return new OkObjectResult(logs);
+            return logs;
         }
     }
 }

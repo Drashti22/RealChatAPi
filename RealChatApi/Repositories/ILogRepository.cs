@@ -5,6 +5,6 @@ namespace RealChatApi.Repositories
 {
     public interface ILogRepository
     {
-        Task<IActionResult> getLogs(DateTime? parsedStartTime, DateTime? parsedEndTime);
+        Task<IQueryable<Log>> getLogs(DateTime? parsedStartTime, DateTime? parsedEndTime);
     }
 }
