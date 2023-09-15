@@ -17,8 +17,6 @@ namespace RealChatApi.Controllers
     {
         private readonly IMessageService _messageService;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
-
         public MessageController(IMessageService messageService, IHttpContextAccessor httpContextAccessor)
         {
             _messageService = messageService;

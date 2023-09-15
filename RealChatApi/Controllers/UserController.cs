@@ -68,13 +68,6 @@ namespace RealChatApi.Controllers
             return await _userService.LoginUserAsync(userobj);
         }
 
-        //[HttpPost("GoogleLogin")]
-        //public async Task<IdentityResult> GoogleAuthentication([FromBody] GoogleAuthDto requestDto)
-        //{
-        //    return await _userService.GoogleAuthentication(requestDto);
-
-        //}
-
         [Authorize]
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
@@ -84,7 +77,7 @@ namespace RealChatApi.Controllers
       
 
         [HttpPost("GoogleAuthenticate")]
-        public async Task<string> GoogleAuthenticate([FromBody] GoogleAuthDto request)
+        public async Task<object> GoogleAuthenticate([FromBody] GoogleAuthDto request)
         {
             return await _userService.GoogleAuthenticate(request);
         }

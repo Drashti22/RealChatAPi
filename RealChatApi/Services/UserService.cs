@@ -88,26 +88,6 @@ namespace RealChatApi.Services
                 );
             ;
         }
-
-        //public async Task<IActionResult> AuthenticateGoogleUserAsync(GoogleAuthDto request)
-        //{
-        //   try
-        //    {
-        //        var googleUser = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, new GoogleJsonWebSignature.ValidationSettings()
-        //        {
-        //            Audience = new[] { "http://414420117584-8ggttrr52sgf1cge36h8argahdv4nkaj.apps.googleusercontent.com/" }
-        //        }
-
-        //            );
-        //   return OkobjectResult();
-        //    }
-        //    catch
-        //    {
-
-        //    }
-        //}
-
-
         public string createJwtToken(ApplicationUser user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
@@ -165,25 +145,24 @@ namespace RealChatApi.Services
             .ToListAsync();
             return new OkObjectResult(new { users = userList });
         }
-        public async Task<String> GoogleAuthenticate(GoogleAuthDto request)
+        public async Task<object> GoogleAuthenticate(GoogleAuthDto request)
         {
             try
             {
                 var user = await AuthenticateGoogleUserAsync(request);
                 if (user == null)
                 {
-                    // Log or handle the case where authentication failed.
                     return "Authentication failed";
                 }
 
                 var token = CreateToken(user);
-                return token;       
+                return new OkObjectResult(new {Token = token,
+                                               User = user});       
             }
             catch (Exception ex)
             {
-                // Log the exception for debugging purposes.
                 Console.WriteLine($"Exception in GoogleAuthenticate: {ex}");
-                throw; // Rethrow the exception for proper handling.
+                throw; 
             }
         }
         public async Task<IdentityUser> AuthenticateGoogleUserAsync(GoogleAuthDto request)
@@ -192,8 +171,7 @@ namespace RealChatApi.Services
             {
                 if (request == null)
                 {
-                    // Handle the case where the request is null.
-                    return null; // or throw an exception or return an error response
+                    return null;
                 }
 
                 Payload payload = null;
@@ -208,17 +186,15 @@ namespace RealChatApi.Services
 
                 if (payload == null)
                 {
-                    // Handle the case where the payload is null.
-                    return null; // or throw an exception or return an error response
+                    return null; 
                 }
 
                 return await GetOrCreateExternalLoginUser(GoogleAuthDto.PROVIDER, payload.Subject, payload.Email, payload.GivenName, payload.FamilyName);
             }
             catch (InvalidJwtException ex)
             {
-                // Handle the exception, log it, and return an error response.
                 Console.WriteLine($"Exception in AuthenticateGoogleUserAsync: {ex}");
-                return null; // or throw an exception or return an error response
+                return null;
             }
         }
 

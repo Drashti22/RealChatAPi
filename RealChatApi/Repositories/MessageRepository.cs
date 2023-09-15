@@ -56,13 +56,9 @@ namespace RealChatApi.Repositories
         }
         public async Task<IQueryable<Message>> QueryMessage(string userId1, string userId2)
         {
-           
-
            return _context.Messages
                 .Where(m => (m.SenderId == (userId1)) && m.ReceiverId == userId2 ||
-                             (m.SenderId == userId2 && m.ReceiverId == (userId1)));
-
-           
+                             (m.SenderId == userId2 && m.ReceiverId == (userId1)));  
         }
 
         public async Task<bool> userIdExists(string userId)

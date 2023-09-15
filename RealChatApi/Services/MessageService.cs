@@ -90,8 +90,6 @@ namespace RealChatApi.Services
             message.Content = requestdto.Content;
             await _messageRepository.EditMessage(message);
             return new OkObjectResult(new { Message = "Message Edited Successfully" });
-
-
         }
 
         public async Task<IActionResult> DeleteMessage(int messageId)
