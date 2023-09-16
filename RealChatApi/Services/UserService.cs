@@ -1,9 +1,9 @@
 ﻿
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Practices.EnterpriseLibrary.Validation.Configuration;
 using RealChatApi.DTOs;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -12,55 +12,57 @@ using static Google.Apis.Auth.GoogleJsonWebSignature;
 
 
 namespace RealChatApi.Services
+{
+    public class UserService : IUserService
     {
-        public class UserService : IUserService
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        private readonly ApplicationDbContext _authContext;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IConfiguration _configuration;
+        private static readonly Dictionary<string, string> Users = new Dictionary<string, string>();
+
+
+        public UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext authContext, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
-            private readonly UserManager<ApplicationUser> _userManager;
-
-            private readonly ApplicationDbContext _authContext;
-
-            private readonly IHttpContextAccessor _httpContextAccessor;
-
-            private readonly IConfiguration _configuration;
-
-
-        public UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext authContext, IHttpContextAccessor httpContextAccessor)
-            {
-                _userManager = userManager;
-                _authContext = authContext;
-                _httpContextAccessor = httpContextAccessor;
+            _userManager = userManager;
+            _authContext = authContext;
+            _httpContextAccessor = httpContextAccessor;
+            _configuration = configuration;
         }
 
-            public async Task<IdentityResult> RegisterUserAsync(RegisterRequestDTO requestDTO)
+        public async Task<IdentityResult> RegisterUserAsync(RegisterRequestDTO requestDTO)
+        {
+
+            var existingUser = await _userManager.FindByEmailAsync(requestDTO.Email);
+            if (existingUser != null)
+                return IdentityResult.Failed(new IdentityError { Description = "Email already exists." });
+
+
+
+            var newUser = new ApplicationUser
             {
-            
-                var existingUser = await _userManager.FindByEmailAsync(requestDTO.Email);
-                if (existingUser != null)
-                    return IdentityResult.Failed(new IdentityError { Description = "Email already exists." });
-                
-
-            
-                var newUser = new ApplicationUser
-                {
-                    Name = requestDTO.Name,
-                    UserName = requestDTO.Email,
-                    Email = requestDTO.Email,
-                    Token = ""
+                Name = requestDTO.Name,
+                UserName = requestDTO.Email,
+                Email = requestDTO.Email,
+                Token = ""
 
 
-                };
-                var result = await _userManager.CreateAsync(newUser, requestDTO.Password);
-                return result;
-            
-            }
+            };
+            var result = await _userManager.CreateAsync(newUser, requestDTO.Password);
+            return result;
 
-            public async Task<IActionResult> LoginUserAsync(LoginRequestDto requestDTO)
-            {
+        }
+
+        public async Task<IActionResult> LoginUserAsync(LoginRequestDto requestDTO)
+        {
             if (requestDTO == null)
                 //return IdentityResult.Failed(new IdentityError { Description = "Invalid request." });
                 return new BadRequestObjectResult(new { Message = "Invalid Request" });
 
-                var user = await _userManager.FindByEmailAsync(requestDTO.email);
+            var user = await _userManager.FindByEmailAsync(requestDTO.email);
 
 
 
@@ -72,6 +74,7 @@ namespace RealChatApi.Services
             await _userManager.UpdateAsync(user);
             var responseDto = new LoginResponseDto
             {
+                Id = user.Id,
                 Token = token,
                 name = user.Name,
                 email = user.Email
@@ -85,47 +88,27 @@ namespace RealChatApi.Services
 
                 );
             ;
-            }
-
-        //public async Task<IActionResult> AuthenticateGoogleUserAsync(GoogleAuthDto request)
-        //{
-        //   try
-        //    {
-        //        var googleUser = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, new GoogleJsonWebSignature.ValidationSettings()
-        //        {
-        //            Audience = new[] { "http://414420117584-8ggttrr52sgf1cge36h8argahdv4nkaj.apps.googleusercontent.com/" }
-        //        }
-
-        //            );
-        //   return OkobjectResult();
-        //    }
-        //    catch
-        //    {
-
-        //    }
-        //}
-
-
+        }
         public string createJwtToken(ApplicationUser user)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("This is my 128 bits very long secret key.......");
+            var identity = new ClaimsIdentity(new Claim[]
             {
-                var jwtTokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes("This is my 128 bits very long secret key.......");
-                var identity = new ClaimsIdentity(new Claim[]
-                {
                     new Claim(ClaimTypes.Name, $"{user.Name}"),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-                });
-                var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+            });
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
-                var tokenDescriptor = new SecurityTokenDescriptor
-                {
-                    Subject = identity,
-                    Expires = DateTime.Now.AddDays(3),
-                    SigningCredentials = credentials,
-                };
-                var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-                return jwtTokenHandler.WriteToken(token);
-            }
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = identity,
+                Expires = DateTime.Now.AddDays(3),
+                SigningCredentials = credentials,
+            };
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            return jwtTokenHandler.WriteToken(token);
+        }
 
 
         public async Task<ApplicationUser> GetCurrentLoggedInUser()
@@ -141,15 +124,16 @@ namespace RealChatApi.Services
             return null;
         }
 
-        public async Task<IActionResult> GetAllUsers(){
-        var currentUser = await GetCurrentLoggedInUser();
-                if(currentUser == null) 
-                {
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var currentUser = await GetCurrentLoggedInUser();
+            if (currentUser == null)
+            {
                 return new BadRequestObjectResult(new
                 {
                     Message = "Unable to retrieve current user."
                 });
-                }
+            }
             var userList = await _authContext.Users
             .Where(u => u.Id != currentUser.Id)
             .Select(u => new
@@ -162,30 +146,62 @@ namespace RealChatApi.Services
             .ToListAsync();
             return new OkObjectResult(new { users = userList });
         }
-
-        public async Task<ApplicationUser> AuthenticateGoogleUserAsync(GoogleAuthDto request)
+        public async Task<object> GoogleAuthenticate(GoogleAuthDto request)
         {
             try
             {
-                Payload payload = await ValidateAsync(request.IdToken, new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings
+                var user = await AuthenticateGoogleUserAsync(request);
+                if (user == null)
                 {
-                    Audience = new[] { _configuration["Authentication:Google:ClientId"] }
+                    return "Authentication failed";
+                }
+
+                var token = CreateToken(user);
+                return new OkObjectResult(new
+                {
+                    Token = token,
+                    User = user
                 });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception in GoogleAuthenticate: {ex}");
+                throw;
+            }
+        }
+        public async Task<IdentityUser> AuthenticateGoogleUserAsync(GoogleAuthDto request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return null;
+                }
+
+                Payload payload = null;
+
+                if (_configuration != null)
+                {
+                    payload = await GoogleJsonWebSignature.ValidateAsync(request.idToken, new ValidationSettings
+                    {
+                        Audience = new[] { _configuration["Google:ClientId"] }
+                    });
+                }
+
                 if (payload == null)
                 {
-                    // Handle the case where the payload is null (authentication failed)
-                    // You can return an error response or take appropriate action here
                     return null;
                 }
 
                 return await GetOrCreateExternalLoginUser(GoogleAuthDto.PROVIDER, payload.Subject, payload.Email, payload.GivenName, payload.FamilyName);
             }
-            catch(Exception ex) 
+            catch (InvalidJwtException ex)
             {
-                Console.WriteLine($"Exception: {ex.Message}");
+                Console.WriteLine($"Exception in AuthenticateGoogleUserAsync: {ex}");
                 return null;
             }
         }
+
 
 
         private async Task<ApplicationUser> GetOrCreateExternalLoginUser(string provider, string key, string email, string firstName, string lastName)
@@ -203,9 +219,11 @@ namespace RealChatApi.Services
                 // If the email is not found, try to create the user with the provided firstName as the username
                 user = new ApplicationUser
                 {
+                    Name = firstName,
                     Email = email,
                     UserName = firstName,
                     Id = key,
+                    Token = ""
                 };
 
             }
@@ -233,6 +251,35 @@ namespace RealChatApi.Services
 
             return null;
         }
+
+        private string CreateToken(IdentityUser user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                 //new Claim("UserId", user.UserID.ToString())
+                //new Claim(ClaimTypes.Role,"User")
+            };
+
+            //var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("This is my 128 bits very long secret key.......").Value))
+            var key = Encoding.ASCII.GetBytes("This is my 128 bits very long secret key.......");
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken
+                (
+                    claims: claims,
+                    expires: DateTime.Now.AddDays(1),
+                    signingCredentials: credentials
+                );
+
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return jwt;
+
+        }
+
+       
     }
 
 

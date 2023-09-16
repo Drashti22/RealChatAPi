@@ -12,6 +12,6 @@ namespace RealChatApi.DTOs
 
         [JsonProperty("idToken")]
         [Required]
-        public string IdToken { get; set; }
+        public string idToken { get; set; }
     }
 }

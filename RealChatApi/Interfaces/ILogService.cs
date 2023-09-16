@@ -4,6 +4,6 @@ namespace RealChatApi.Interfaces
 {
     public interface ILogService
     {
-        Task<IActionResult> getLogs(string timeframe, string startTime, string endTime);
+        Task<IActionResult> getLogs( string startTime, string endTime);
     }
 }

@@ -18,9 +18,9 @@ namespace RealChatApi.Controllers
 
 
         [HttpGet("log")]
-        public async Task<IActionResult> GetLogs([FromQuery] string timeframe, [FromQuery] string startTime = null, [FromQuery] string endTime = null)
+        public async Task<IActionResult> GetLogs( [FromQuery] string startTime = null, [FromQuery] string endTime = null)
         {
-            return await _logService.getLogs(timeframe, startTime, endTime);
+            return await _logService.getLogs( startTime, endTime);
         }
     }
 }

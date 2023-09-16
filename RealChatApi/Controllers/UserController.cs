@@ -15,7 +15,7 @@ using System.Text;
 
 namespace RealChatApi.Controllers
 {
-   
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
@@ -26,12 +26,12 @@ namespace RealChatApi.Controllers
 
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UserController(IUserService userService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager )
+        public UserController(IUserService userService, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             _userService = userService;
             _userManager = userManager;
             _signInManager = signInManager;
-           
+
         }
 
 
@@ -40,7 +40,7 @@ namespace RealChatApi.Controllers
         {
             var result = await _userService.RegisterUserAsync(userobj);
 
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 return Ok(new
                 {
@@ -51,7 +51,7 @@ namespace RealChatApi.Controllers
                         name = userobj.Name,
                         email = userobj.Email
                     }
-                   }
+                }
 
                     );
             }
@@ -68,99 +68,19 @@ namespace RealChatApi.Controllers
             return await _userService.LoginUserAsync(userobj);
         }
 
-        //[HttpPost("GoogleLogin")]
-        //public async Task<IdentityResult> GoogleAuthentication([FromBody] GoogleAuthDto requestDto)
-        //{
-        //    return await _userService.GoogleAuthentication(requestDto);
-
-        //}
-
         [Authorize]
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers()
         {
             return await _userService.GetAllUsers();
         }
-        //[HttpGet("google")]
-        //public IActionResult AuthenticateWithGoogle()
-        //{
-        //    var properties = new AuthenticationProperties
-        //    {
-        //        RedirectUri = Url.Action("AuthenticateWithGoogleCallback")
-        //    };
-        //    return Challenge(properties, GoogleDefaults.AuthenticationScheme);
-        //}
-        //[HttpGet("google-callback")]
-        //public async Task<IActionResult> AuthenticateWithGoogleCallback()
-        //{
-        //    var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
-        //    if (!result.Succeeded)
-        //    {
-        //        var exception = result.Failure;
-        //        Console.WriteLine("Exception", exception);
-        //        return Unauthorized(new { message = "Google authentication failed." });
-        //    }
+      
 
-        //    // Authentication successful, access user information from result.Principal
-        //    var user = result.Principal;
-
-        //    // Extract the user's name and email from the user's claims
-        //    var name = user.FindFirst(ClaimTypes.Name)?.Value;
-        //    var email = user.FindFirst(ClaimTypes.Email)?.Value;
-
-        //    // Generate JWT token
-        //    var token = GenerateJwtToken(name, email);
-
-        //    // Return the token along with user information
-        //    return Ok(new
-        //    {
-        //        message = "Google authentication successful",
-        //        token = token,
-        //        name = name,
-        //        email = email
-        //    });
-        //}
-
-        //[HttpPost("GoogleAuthenticate")]
-        //public async Task<IActionResult> GoogleAuthenticate([FromBody] GoogleAuthDto request)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest(ModelState.Values.SelectMany(it => it.Errors).Select(it => it.ErrorMessage));
-        //    }
-
-        //    var user = await _userService.AuthenticateGoogleUserAsync(request);
-
-        //    if (user != null)
-        //    {
-        //        var token = createJwtToken(user);
-        //        return Ok(new { token = token });
-        //    }
-        //    else
-        //    {
-        //        return BadRequest(new { Message = "Google authentication failed." });
-        //    }
-        //}
-
-        //private string createJwtToken(ApplicationUser user)
-        //{
-        //    var jwtTokenHandler = new JwtSecurityTokenHandler();
-        //    var key = Encoding.ASCII.GetBytes("This is my 128 bits very long secret key.......");
-        //    var identity = new ClaimsIdentity(new Claim[]
-        //    {
-        //            new Claim(ClaimTypes.Name, $"{user.Name}"),
-        //            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-        //    });
-        //    var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
-
-        //    var tokenDescriptor = new SecurityTokenDescriptor
-        //    {
-        //        Subject = identity,
-        //        Expires = DateTime.Now.AddDays(3),
-        //        SigningCredentials = credentials,
-        //    };
-        //    var token = jwtTokenHandler.CreateToken(tokenDescriptor);
-        //    return jwtTokenHandler.WriteToken(token);
-        //}
+        [HttpPost("GoogleAuthenticate")]
+        public async Task<object> GoogleAuthenticate([FromBody] GoogleAuthDto request)
+        {
+            return await _userService.GoogleAuthenticate(request);
+        }
+        
     }
 }

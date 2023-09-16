@@ -12,6 +12,8 @@ namespace RealChatApi.Services
 
         Task<IActionResult> GetAllUsers();
 
-        Task<ApplicationUser> AuthenticateGoogleUserAsync(GoogleAuthDto request);
+        Task<IdentityUser> AuthenticateGoogleUserAsync(GoogleAuthDto request);
+
+        Task<object> GoogleAuthenticate(GoogleAuthDto request);
     }
 }
