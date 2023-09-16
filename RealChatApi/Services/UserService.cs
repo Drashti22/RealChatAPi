@@ -22,6 +22,7 @@ namespace RealChatApi.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         private readonly IConfiguration _configuration;
+        private static readonly Dictionary<string, string> Users = new Dictionary<string, string>();
 
 
         public UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext authContext, IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
@@ -156,13 +157,16 @@ namespace RealChatApi.Services
                 }
 
                 var token = CreateToken(user);
-                return new OkObjectResult(new {Token = token,
-                                               User = user});       
+                return new OkObjectResult(new
+                {
+                    Token = token,
+                    User = user
+                });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Exception in GoogleAuthenticate: {ex}");
-                throw; 
+                throw;
             }
         }
         public async Task<IdentityUser> AuthenticateGoogleUserAsync(GoogleAuthDto request)
@@ -186,7 +190,7 @@ namespace RealChatApi.Services
 
                 if (payload == null)
                 {
-                    return null; 
+                    return null;
                 }
 
                 return await GetOrCreateExternalLoginUser(GoogleAuthDto.PROVIDER, payload.Subject, payload.Email, payload.GivenName, payload.FamilyName);
@@ -219,7 +223,7 @@ namespace RealChatApi.Services
                     Email = email,
                     UserName = firstName,
                     Id = key,
-                    Token= ""
+                    Token = ""
                 };
 
             }
@@ -274,6 +278,8 @@ namespace RealChatApi.Services
             return jwt;
 
         }
+
+       
     }
 
 

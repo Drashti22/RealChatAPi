@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace RealChatApi.Models
 {
@@ -9,12 +10,17 @@ namespace RealChatApi.Models
         public int Id { get; set; }
 
         public string SenderId { get; set; }
+
+
+        
         [ForeignKey("SenderId")]
+        [JsonIgnore]
         public virtual ApplicationUser Sender { get; set; }
 
         public string ReceiverId { get; set; }
 
         [ForeignKey("ReceiverId")]
+        [JsonIgnore]
         public virtual ApplicationUser Receiver { get; set; }
 
 

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using RealChatApi.Models;
+using System.Text.Json.Serialization;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
@@ -40,9 +41,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         public string Token { get; set; }
 
-
+    [JsonIgnore]
         public virtual ICollection<Message>? SentMessages { get; set; }
 
-        public virtual ICollection<Message>? ReceivedMessages { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Message>? ReceivedMessages { get; set; }
     }
-

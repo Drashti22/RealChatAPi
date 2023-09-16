@@ -2,11 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using RealChatApi.DTOs;
 using RealChatApi.Interfaces;
 using RealChatApi.Models;
 using RealChatApi.Repositories;
 using System.Security.Claims;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace RealChatApi.Services
 {
@@ -15,12 +18,15 @@ namespace RealChatApi.Services
         private readonly ApplicationDbContext _authContext;
         private readonly IMessageRepository _messageRepository;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly static connection<string> _connections = new connection<string>();
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public MessageService(ApplicationDbContext authContext, IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor)
+        public MessageService(ApplicationDbContext authContext, IMessageRepository messageRepository, IHttpContextAccessor httpContextAccessor, IHubContext<ChatHub> hubContext)
         {
             _authContext = authContext;
             _messageRepository = messageRepository;
             _httpContextAccessor = httpContextAccessor;
+            _hubContext = hubContext;
         }
 
         public async Task<IActionResult> SendMessage(SendMessageRequestDto requestdto, string CurrentUser)
@@ -55,6 +61,10 @@ namespace RealChatApi.Services
                 Timestamp = DateTime.Now
             };
             message = await _messageRepository.SendMessageAsync(message);
+            foreach (var connectionId in _connections.GetConnections(message.ReceiverId))
+            {
+                await _hubContext.Clients.Client(connectionId).SendAsync("BroadCast", message);
+            }
 
             var response = new SendMessageResponseDTO
             {
@@ -195,5 +205,7 @@ namespace RealChatApi.Services
 
             return new OkObjectResult(new { messages = searchResults });
         }
+
+        
     }
 }

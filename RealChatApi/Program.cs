@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -12,6 +15,7 @@ using RealChatApi.Services;
 using Swashbuckle.AspNetCore.Filters;
 using System;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,19 +75,29 @@ builder.Services.AddAuthentication(x =>
     options.ClientId = "414420117584-8ggttrr52sgf1cge36h8argahdv4nkaj.apps.googleusercontent.com";
     options.ClientSecret = "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";
 });
-
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+// Add HttpContextAccessor
+builder.Services.AddSingleton<IUrlHelper>(x =>
+{
+    var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+    return new UrlHelper(actionContext);
+});
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSwagger",
         builder => builder.
-            AllowAnyOrigin()
+         WithOrigins("http://localhost:4200")
         .AllowAnyMethod()
-        .AllowAnyHeader());
+        .AllowAnyHeader()
+        .AllowCredentials());
 });
+builder.Services.AddSingleton<IConnection<string>, connection<string>>();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -97,10 +111,13 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 app.MapControllers();
+
 app.UseCors("AllowSwagger");
+
+app.MapHub<ChatHub>("/chat/hub");
+
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 
-app.MapHub<ChatHub>("chat-hub");
 
 app.Run();
