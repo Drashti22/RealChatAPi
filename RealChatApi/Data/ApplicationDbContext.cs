@@ -14,6 +14,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Log> Logs { get; set; }
 
+    public DbSet<Group> Groups { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +32,17 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
+        modelBuilder.Entity<Group>()
+            .HasMany(g => g.Messages)
+            .WithOne(m => m.Group)
+            .HasForeignKey(m => m.GroupId)
+            .OnDelete(DeleteBehavior.ClientSetNull);
+
+        modelBuilder.Entity<ApplicationUser>()
+            .HasMany(u => u.Groups)
+            .WithMany(g => g.Members)
+            .UsingEntity(j => j.ToTable("UserGroups"));
+
 
         base.OnModelCreating(modelBuilder);
     }
@@ -41,9 +53,12 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         public string Token { get; set; }
 
-    [JsonIgnore]
+        [JsonIgnore]
         public virtual ICollection<Message>? SentMessages { get; set; }
 
-    [JsonIgnore]
-    public virtual ICollection<Message>? ReceivedMessages { get; set; }
-    }
+        [JsonIgnore]
+        public virtual ICollection<Message>? ReceivedMessages { get; set; }
+
+        [JsonIgnore]
+        public virtual ICollection<Group>? Groups { get; set; }
+}
