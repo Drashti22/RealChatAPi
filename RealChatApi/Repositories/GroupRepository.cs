@@ -37,5 +37,39 @@ namespace RealChatApi.Repositories
                 .ToListAsync();
             return groupList;
         }
+        public async Task<Group> FindGroup(int groupid)
+        {
+           var group=  await _context.Groups.FindAsync(groupid);
+            return group;
+        }
+        public async Task<ApplicationUser> AddUser(ApplicationUser user)
+{
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        return user;
+}
+        public async Task<Group> UpdateGroup(Group group)
+        {
+            _context.Entry(group).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return group;
+        }
+        public async Task<Message> SendMessage (Message message)
+        {
+             _context.Add(message);
+            await _context.SaveChangesAsync();
+            return message;
+        }
+        public async Task<bool> groupIdExists(int groupId)
+        {
+            return _context.Groups.Any(r => r.Id == groupId);
+        }
+        public async Task<Group> GetGroupInfo(int groupId)
+        {
+            var groupInfo = await _context.Groups
+                .Include(g => g.Members) 
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+            return groupInfo;
+        }
     }
 }

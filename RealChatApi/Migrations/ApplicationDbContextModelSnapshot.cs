@@ -298,8 +298,10 @@ namespace RealChatApi.Migrations
                     b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
+                    b.Property<int>("MessageType")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReceiverId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("SenderId")
@@ -394,8 +396,7 @@ namespace RealChatApi.Migrations
 
                     b.HasOne("ApplicationUser", "Receiver")
                         .WithMany("ReceivedMessages")
-                        .HasForeignKey("ReceiverId")
-                        .IsRequired();
+                        .HasForeignKey("ReceiverId");
 
                     b.HasOne("ApplicationUser", "Sender")
                         .WithMany("SentMessages")

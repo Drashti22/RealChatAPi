@@ -11,5 +11,13 @@ namespace RealChatApi.Interfaces
         Task<IActionResult> RetrieveGroupList();
 
         Task<ApplicationUser> GetCurrentLoggedInUser();
+
+        Task<IActionResult> AddMemberToGroup(int groupId, [FromBody] AddMemberRequestDTO request);
+
+        Task<IActionResult> SendMessage(int groupId, GroupMessageRequestDTO messageRequest);
+
+        Task<IActionResult> GetMessages(int groupId);
+
+        Task<GroupInfoDTO> GetGroupInfo(int groupId);
     }
 }

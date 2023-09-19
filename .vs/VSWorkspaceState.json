@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\RealChatApi",
-    "\\RealChatApi\\Controllers"
+    "\\RealChatApi\\Controllers",
+    "\\RealChatApi\\Services"
   ],
-  "SelectedNode": "\\RealChatApi\\Controllers\\UserController.cs",
+  "SelectedNode": "\\RealChatApi\\Services\\MessageService.cs",
   "PreviewInSolutionExplorer": false
 }

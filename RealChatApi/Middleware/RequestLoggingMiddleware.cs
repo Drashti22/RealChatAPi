@@ -32,7 +32,7 @@ namespace RealChatApi.Middleware
             await dbContext.SaveChangesAsync();
 
             await _next(context);
-        }
+         }
 
         private async Task<string> GetRequestBody(HttpRequest request)
         {

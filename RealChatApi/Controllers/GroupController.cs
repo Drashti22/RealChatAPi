@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RealChatApi.DTOs;
 using RealChatApi.Interfaces;
-using RealChatApi.Models;
+using System.Text.RegularExpressions;
 
 namespace RealChatApi.Controllers
 {
@@ -34,6 +32,32 @@ namespace RealChatApi.Controllers
         {
             return await _groupService.RetrieveGroupList();
         }
+        [HttpPost("{groupId}/messages")]
+        public async Task<IActionResult> SendMessage(int groupId, [FromBody] GroupMessageRequestDTO messageRequest)
+        {
+            return await _groupService.SendMessage(groupId, messageRequest);
+        }
+        [HttpPost("groups/{groupId}/members")]
+        public async Task<IActionResult> AddMemberToGroup(int groupId, [FromBody] AddMemberRequestDTO request)
+        {
+            return await _groupService.AddMemberToGroup(groupId, request);
+        }
+        [HttpGet("group/{groupId}/Messages")]
+        public async Task <IActionResult> GetMessages(int groupId)
+        {
+            return await _groupService.GetMessages(groupId);
+        }
 
+        [HttpGet ("group/{groupId}/groupInfo")]
+        public async Task <ActionResult<GroupInfoDTO>> GetGroupInfo(int groupId)
+        {
+            var groupInfo = await _groupService.GetGroupInfo(groupId);
+            if (groupInfo == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(groupInfo);
+        }
     }
 }
