@@ -1,10 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\RealChatApi",
     "\\RealChatApi\\Controllers",
     "\\RealChatApi\\Services"
   ],
-  "SelectedNode": "\\RealChatApi\\Services\\MessageService.cs",
+  "SelectedNode": "\\RealChatApi.sln",
   "PreviewInSolutionExplorer": false
 }

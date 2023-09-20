@@ -256,7 +256,7 @@ namespace RealChatApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups");
+                    b.ToTable("Groups", (string)null);
                 });
 
             modelBuilder.Entity("RealChatApi.Models.Log", b =>
@@ -280,7 +280,7 @@ namespace RealChatApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs");
+                    b.ToTable("Logs", (string)null);
                 });
 
             modelBuilder.Entity("RealChatApi.Models.Message", b =>
@@ -319,7 +319,7 @@ namespace RealChatApi.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages");
+                    b.ToTable("Messages", (string)null);
                 });
 
             modelBuilder.Entity("ApplicationUserGroup", b =>

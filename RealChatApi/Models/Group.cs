@@ -9,9 +9,11 @@ namespace RealChatApi.Models
 
         public string GroupName { get; set; }
 
-        public virtual ICollection<ApplicationUser> Members { get; set; }
+        public virtual ICollection<ApplicationUser> Members { get; set; } 
 
         public virtual ICollection<Message> Messages { get; set; }
+
+        public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
 
     }
 }

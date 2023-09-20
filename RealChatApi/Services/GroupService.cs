@@ -150,69 +150,69 @@ namespace RealChatApi.Services
 
         public async Task<IActionResult> AddMemberToGroup(int groupId, [FromBody] AddMemberRequestDTO request)
         {
-            try
-            {
-                var group = await _groupRepository.FindGroup(groupId);
-                if (group == null)
-                {
-                    return new NotFoundObjectResult(new
-                    {
-                        Message = "Group not found"
-                    });
-                }
-                var currentUser = await GetCurrentLoggedInUser();
-                bool IsUserMemberOfGroup(ApplicationUser user, Group group)
-                {
-                    if (group == null || group.Members == null)
-                    {
-                        return false; // The group or its members collection is null, so the user cannot be a member.
-                    }
-                    return group.Members.Contains(user);
-                }
-                if (!IsUserMemberOfGroup(currentUser, group))
-                {
-                    return new UnauthorizedObjectResult(new
-                    {
-                        Message = "You are not a member of this group and cannot send messages to it."
-                    });
-                }
-                foreach (var member in request.Members)
-                {
-                    // Check if the member to add exists in the database
-                    var userToAdd = await _Context.Users.FirstOrDefaultAsync(u => u.Id == member);
-                    if (userToAdd != null)
-                    {
-                        if (group == null)
-                        {
-                            group = new Group(); // Create a new group if it's null
-                                                 // Initialize other properties of 'group' as needed
-                        }
-                        if (group.Members == null)
-                        {
-                            group.Members = new List<ApplicationUser>(); // Initialize 'Members' collection if it's null
-                        }
+            //try
+            //{
+            //    var group = await _groupRepository.FindGroup(groupId);
+            //    if (group == null)
+            //    {
+            //        return new NotFoundObjectResult(new
+            //        {
+            //            Message = "Group not found"
+            //        });
+            //    }
+            //    var currentUser = await GetCurrentLoggedInUser();
+            //    bool IsUserMemberOfGroup(ApplicationUser user, Group group)
+            //    {
+            //        if (group == null || group.Members == null)
+            //        {
+            //            return false; // The group or its members collection is null, so the user cannot be a member.
+            //        }
+            //        return group.Members.Contains(user);
+            //    }
+            //    if (!IsUserMemberOfGroup(currentUser, group))
+            //    {
+            //        return new UnauthorizedObjectResult(new
+            //        {
+            //            Message = "You are not a member of this group and cannot send messages to it."
+            //        });
+            //    }
+            //    foreach (var member in request.Members)
+            //    {
+            //        // Check if the member to add exists in the database
+            //        var userToAdd = await _Context.Users.FirstOrDefaultAsync(u => u.Id == member);
+            //        if (userToAdd != null)
+            //        {
+            //            if (group == null)
+            //            {
+            //                group = new Group(); // Create a new group if it's null
+            //                                     // Initialize other properties of 'group' as needed
+            //            }
+            //            if (group.Members == null)
+            //            {
+            //                group.Members = new List<ApplicationUser>(); // Initialize 'Members' collection if it's null
+            //            }
 
-                        // Add the user to the group if not already a member
-                        if (!group.Members.Contains(userToAdd))
-                        {
-                            group.Members.Add(userToAdd);
-                        }
+            //            // Add the user to the group if not already a member
+            //            if (!group.Members.Contains(userToAdd))
+            //            {
+            //                group.Members.Add(userToAdd);
+            //            }
 
-                    }
-                }
-                await _groupRepository.UpdateGroup(group);
-                var response = new AddMemberResponseDTO
-                {
-                    GroupId = group.Id,
-                    GroupName = group.GroupName,
-                    MembersId = group.Members.Select(u => u.Id).ToList()
-                };
-                return new OkObjectResult(response);
-            }
-            catch (Exception ex)
-            {
+            //        }
+            //    }
+            //    await _groupRepository.UpdateGroup(group);
+            //    var response = new AddMemberResponseDTO
+            //    {
+            //        GroupId = group.Id,
+            //        GroupName = group.GroupName,
+            //        MembersId = group.Members.Select(u => u.Id).ToList()
+            //    };
+            //    return new OkObjectResult(response);
+            //}
+            //catch (Exception ex)
+            //{
                 return new StatusCodeResult(StatusCodes.Status500InternalServerError);
-            }
+            
         }
 
         public async Task<IActionResult> GetMessages(int groupId)
@@ -227,13 +227,16 @@ namespace RealChatApi.Services
             }
             bool IsUserMemberOfGroup(ApplicationUser user, Group group)
             {
-                if (group == null || group.Members == null)
+                //int groupId = group.Id;
+                //var users = _Context.
+                if (group == null || group.Members.Count == 0)
                 {
                     return false; // The group or its members collection is null, so the user cannot be a member.
                 }
                 return group.Members.Contains(user);
             }
-            if (!IsUserMemberOfGroup(currentUser, group))
+            bool isUserMember = IsUserMemberOfGroup(currentUser, group);
+            if (!isUserMember)
             {
                 return new UnauthorizedObjectResult(new
                 {

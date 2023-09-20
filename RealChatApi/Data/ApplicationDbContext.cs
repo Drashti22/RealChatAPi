@@ -16,6 +16,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<Group> Groups { get; set; }
 
+    public DbSet<GroupMember> GroupMembers { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure one-to-many relationship between User and Message
@@ -33,7 +35,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .OnDelete(DeleteBehavior.ClientSetNull);
 
         modelBuilder.Entity<Group>()
-            .HasMany(g => g.Messages)
+            .HasMany(g => g.Messages )
             .WithOne(m => m.Group)
             .HasForeignKey(m => m.GroupId)
             .OnDelete(DeleteBehavior.ClientSetNull);
@@ -43,22 +45,38 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(g => g.Members)
             .UsingEntity(j => j.ToTable("UserGroups"));
 
+        modelBuilder.Entity<GroupMember>()
+        .HasKey(gm => new { gm.GroupId, gm.UserId });
+
+        modelBuilder.Entity<GroupMember>()
+            .HasOne(gm => gm.Group)
+            .WithMany(g => g.GroupMembers)
+            .HasForeignKey(gm => gm.GroupId);
+
+        modelBuilder.Entity<GroupMember>()
+            .HasOne(gm => gm.User)
+            .WithMany(u => u.GroupMembers)
+            .HasForeignKey(gm => gm.UserId);
 
         base.OnModelCreating(modelBuilder);
     }
 }
-    public class ApplicationUser : IdentityUser
-    {
-        public string Name { get; set; }
+public class ApplicationUser : IdentityUser
+{
+    public string Name { get; set; }
 
-        public string Token { get; set; }
+    public string Token { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<Message>? SentMessages { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Message>? SentMessages { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<Message>? ReceivedMessages { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Message>? ReceivedMessages { get; set; }
 
-        [JsonIgnore]
-        public virtual ICollection<Group>? Groups { get; set; }
+    [JsonIgnore]
+    public virtual ICollection<Group>? Groups { get; set; }
+
+    [JsonIgnore]
+    public virtual ICollection<GroupMember>? GroupMembers { get; set; } 
+       
 }
