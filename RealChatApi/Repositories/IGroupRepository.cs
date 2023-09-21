@@ -7,18 +7,21 @@ namespace RealChatApi.Repositories
     public interface IGroupRepository
     {
         Task<Group> CreateGroup(Group group);
-
-        Task<List<GetGroupDto>> GetList();
+        Task<bool> groupIdExists (int groupId);
 
         Task<Group> FindGroup(int groupid);
 
-        Task<ApplicationUser> AddUser(ApplicationUser user);
-        Task<Group> UpdateGroup(Group group);
-        Task<Message> SendMessage (Message message);
+        Task<Group> GetGroupAsync(int groupId);
 
-        Task<bool> groupIdExists (int groupId);
+        Task<List<Group>> GetGroups();
 
-        Task<Group> GetGroupInfo(int groupId);
+        Task<bool> IsUserMemberOfGroup(string userId, int groupId);
+
+        Task<Group> GetGroupWithMembersAsync(int groupId);
+
+        Task<Message> CreateMessageAsync(Message message);
+
+        Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId);
 
     }
 }

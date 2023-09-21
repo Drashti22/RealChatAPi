@@ -26,38 +26,30 @@ namespace RealChatApi.Controllers
         {
             return await _groupService.CreateGroup(request);
         }
-
         [HttpGet]
-        public async Task<IActionResult> RetrieveGroupList()
+        public async Task<IActionResult> GetGroups()
         {
-            return await _groupService.RetrieveGroupList();
+            return await _groupService.GetGroups();
+        }
+        [HttpPost("groups/{groupId}/members")]
+        public async Task <IActionResult> addMember(int groupId, [FromBody] AddMemberReqDTO requset)
+        {
+            return await _groupService.AddMember(groupId, requset);
         }
         [HttpPost("{groupId}/messages")]
         public async Task<IActionResult> SendMessage(int groupId, [FromBody] GroupMessageRequestDTO messageRequest)
         {
             return await _groupService.SendMessage(groupId, messageRequest);
         }
-        [HttpPost("groups/{groupId}/members")]
-        public async Task<IActionResult> AddMemberToGroup(int groupId, [FromBody] AddMemberRequestDTO request)
+        [HttpGet("{groupId}/messages")]
+        public async Task<IActionResult> GetGroupMessages(int groupId)
         {
-            return await _groupService.AddMemberToGroup(groupId, request);
+            return await _groupService.GetGroupMessages(groupId);
         }
-        [HttpGet("group/{groupId}/Messages")]
-        public async Task <IActionResult> GetMessages(int groupId)
+        [HttpGet("{groupId}")]
+        public async Task<IActionResult> GetGroupInfo(int groupId)
         {
-            return await _groupService.GetMessages(groupId);
-        }
-
-        [HttpGet ("group/{groupId}/groupInfo")]
-        public async Task <ActionResult<GroupInfoDTO>> GetGroupInfo(int groupId)
-        {
-            var groupInfo = await _groupService.GetGroupInfo(groupId);
-            if (groupInfo == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(groupInfo);
+            return await _groupService.GetGroupInfo(groupId);
         }
     }
 }

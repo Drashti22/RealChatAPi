@@ -94,21 +94,6 @@ namespace RealChatApi.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("ApplicationUserGroup", b =>
-                {
-                    b.Property<int>("GroupsId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("MembersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("GroupsId", "MembersId");
-
-                    b.HasIndex("MembersId");
-
-                    b.ToTable("UserGroups", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -256,7 +241,22 @@ namespace RealChatApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups", (string)null);
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("RealChatApi.Models.GroupMember", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "GroupId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupMembers");
                 });
 
             modelBuilder.Entity("RealChatApi.Models.Log", b =>
@@ -280,7 +280,7 @@ namespace RealChatApi.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Logs", (string)null);
+                    b.ToTable("Logs");
                 });
 
             modelBuilder.Entity("RealChatApi.Models.Message", b =>
@@ -319,22 +319,7 @@ namespace RealChatApi.Migrations
 
                     b.HasIndex("SenderId");
 
-                    b.ToTable("Messages", (string)null);
-                });
-
-            modelBuilder.Entity("ApplicationUserGroup", b =>
-                {
-                    b.HasOne("RealChatApi.Models.Group", null)
-                        .WithMany()
-                        .HasForeignKey("GroupsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ApplicationUser", null)
-                        .WithMany()
-                        .HasForeignKey("MembersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -388,6 +373,25 @@ namespace RealChatApi.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("RealChatApi.Models.GroupMember", b =>
+                {
+                    b.HasOne("RealChatApi.Models.Group", "Group")
+                        .WithMany("GroupMembers")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ApplicationUser", "User")
+                        .WithMany("GroupMembers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Group");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RealChatApi.Models.Message", b =>
                 {
                     b.HasOne("RealChatApi.Models.Group", "Group")
@@ -412,6 +416,8 @@ namespace RealChatApi.Migrations
 
             modelBuilder.Entity("ApplicationUser", b =>
                 {
+                    b.Navigation("GroupMembers");
+
                     b.Navigation("ReceivedMessages");
 
                     b.Navigation("SentMessages");
@@ -419,6 +425,8 @@ namespace RealChatApi.Migrations
 
             modelBuilder.Entity("RealChatApi.Models.Group", b =>
                 {
+                    b.Navigation("GroupMembers");
+
                     b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace RealChatApi.Models
 {
@@ -9,8 +10,7 @@ namespace RealChatApi.Models
 
         public string GroupName { get; set; }
 
-        public virtual ICollection<ApplicationUser> Members { get; set; } 
-
+        [JsonIgnore]
         public virtual ICollection<Message> Messages { get; set; }
 
         public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();

@@ -10,6 +10,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         : base(options)
     {
     }
+
     public DbSet<Message> Messages { get; set; }
 
     public DbSet<Log> Logs { get; set; }
@@ -34,29 +35,18 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
-        modelBuilder.Entity<Group>()
-            .HasMany(g => g.Messages )
-            .WithOne(m => m.Group)
-            .HasForeignKey(m => m.GroupId)
-            .OnDelete(DeleteBehavior.ClientSetNull);
-
-        modelBuilder.Entity<ApplicationUser>()
-            .HasMany(u => u.Groups)
-            .WithMany(g => g.Members)
-            .UsingEntity(j => j.ToTable("UserGroups"));
+        modelBuilder.Entity<GroupMember>()
+             .HasKey(gu => new {gu.UserId, gu.GroupId });
 
         modelBuilder.Entity<GroupMember>()
-        .HasKey(gm => new { gm.GroupId, gm.UserId });
+            .HasOne(u => u.User)
+            .WithMany(gu => gu.GroupMembers)
+            .HasForeignKey(u => u.UserId);
 
         modelBuilder.Entity<GroupMember>()
-            .HasOne(gm => gm.Group)
-            .WithMany(g => g.GroupMembers)
-            .HasForeignKey(gm => gm.GroupId);
-
-        modelBuilder.Entity<GroupMember>()
-            .HasOne(gm => gm.User)
-            .WithMany(u => u.GroupMembers)
-            .HasForeignKey(gm => gm.UserId);
+            .HasOne(g => g.Group)
+            .WithMany(gu => gu.GroupMembers)
+            .HasForeignKey(g => g.GroupId);
 
         base.OnModelCreating(modelBuilder);
     }
@@ -72,9 +62,6 @@ public class ApplicationUser : IdentityUser
 
     [JsonIgnore]
     public virtual ICollection<Message>? ReceivedMessages { get; set; }
-
-    [JsonIgnore]
-    public virtual ICollection<Group>? Groups { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<GroupMember>? GroupMembers { get; set; } 
