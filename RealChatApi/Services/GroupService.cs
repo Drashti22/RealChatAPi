@@ -81,7 +81,7 @@ namespace RealChatApi.Services
         }
         public async Task<IActionResult> GetGroups()
         {
-            var currentUser = GetCurrentLoggedInUser();
+            var currentUser = await GetCurrentLoggedInUser();
             if (currentUser == null)
             {
                 return new NotFoundObjectResult("User not found");
@@ -190,22 +190,30 @@ namespace RealChatApi.Services
            
             return new OkObjectResult(messages);
         }
-        //public async Task<IActionResult> GetGroupInfo(int groupId)
-        //{
-        //    var currentUser = await GetCurrentLoggedInUser();
+        public async Task<IActionResult> GetGroupInfo(int groupId)
+        {
+            var currentUser = await GetCurrentLoggedInUser();
 
-        //    var isMemberOfGroup = await _groupRepository.IsUserMemberOfGroup(currentUser.Id, groupId);
-        //    if (!isMemberOfGroup)
-        //    {
-        //        return new UnauthorizedObjectResult("You are not a member of this group.");
-        //    }
-        //    var group = await _groupRepository.GetGroupAsync(groupId);
+            var isMemberOfGroup = await _groupRepository.IsUserMemberOfGroup(currentUser.Id, groupId);
+            if (!isMemberOfGroup)
+            {
+                return new UnauthorizedObjectResult("You are not a member of this group.");
+            }
+            var group = await _groupRepository.GetGroupAsync(groupId);
 
-        //    if (group == null)
-        //    {
-        //        return new NotFoundObjectResult("Group not found.");
-        //    }
+            if (group == null)
+            {
+                return new NotFoundObjectResult("Group not found.");
+            }
+            var memberIds = await _groupRepository.GetGroupMemberIdsAsync(groupId);
 
-        //}
+            var response = new
+            {
+                GroupId = group.Id,
+                GroupName = group.GroupName,
+                Members = memberIds
+            };
+            return new OkObjectResult(response);
+        }
     }
 }

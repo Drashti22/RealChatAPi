@@ -23,5 +23,7 @@ namespace RealChatApi.Repositories
 
         Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId);
 
+        Task<List<string>> GetGroupMemberIdsAsync(int groupId);
+
     }
 }

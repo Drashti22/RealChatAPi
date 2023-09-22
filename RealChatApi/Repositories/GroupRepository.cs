@@ -89,5 +89,12 @@ namespace RealChatApi.Repositories
                 .OrderBy(message => message.Timestamp)
                 .ToListAsync();
         }
+        public async Task<List<string>> GetGroupMemberIdsAsync(int groupId)
+        {
+            return await _context.GroupMembers
+                .Where(gm => gm.GroupId == groupId)
+                .Select(gm => gm.UserId)
+                .ToListAsync();
+        }
     }
 }
