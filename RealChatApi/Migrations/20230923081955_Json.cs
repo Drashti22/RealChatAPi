@@ -5,7 +5,7 @@
 namespace RealChatApi.Migrations
 {
     /// <inheritdoc />
-    public partial class JsonIgnore : Migration
+    public partial class Json : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

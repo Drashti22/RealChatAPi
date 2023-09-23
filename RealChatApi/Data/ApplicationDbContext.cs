@@ -10,10 +10,14 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         : base(options)
     {
     }
+
     public DbSet<Message> Messages { get; set; }
 
     public DbSet<Log> Logs { get; set; }
 
+    public DbSet<Group> Groups { get; set; }
+
+    public DbSet<GroupMember> GroupMembers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,19 +35,34 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(m => m.ReceiverId)
             .OnDelete(DeleteBehavior.ClientSetNull);
 
+        modelBuilder.Entity<GroupMember>()
+             .HasKey(gu => new {gu.UserId, gu.GroupId });
+
+        modelBuilder.Entity<GroupMember>()
+            .HasOne(u => u.User)
+            .WithMany(gu => gu.GroupMembers)
+            .HasForeignKey(u => u.UserId);
+
+        modelBuilder.Entity<GroupMember>()
+            .HasOne(g => g.Group)
+            .WithMany(gu => gu.GroupMembers)
+            .HasForeignKey(g => g.GroupId);
 
         base.OnModelCreating(modelBuilder);
     }
 }
-    public class ApplicationUser : IdentityUser
-    {
-        public string Name { get; set; }
+public class ApplicationUser : IdentityUser
+{
+    public string Name { get; set; }
 
-        public string Token { get; set; }
+    public string Token { get; set; }
 
     [JsonIgnore]
-        public virtual ICollection<Message>? SentMessages { get; set; }
+    public virtual ICollection<Message>? SentMessages { get; set; }
 
     [JsonIgnore]
     public virtual ICollection<Message>? ReceivedMessages { get; set; }
-    }
+
+    public virtual ICollection<GroupMember>? GroupMembers { get; set; } 
+       
+}

@@ -58,7 +58,7 @@ namespace RealChatApi
 
             if (userIdClaim == null)
             {
-                throw new InvalidOperationException("User ID claim not found in JWT token");
+               throw new InvalidOperationException("User ID claim not found in JWT token");
             }
             var userId = userIdClaim.Value;
 
