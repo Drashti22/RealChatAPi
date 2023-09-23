@@ -63,7 +63,6 @@ public class ApplicationUser : IdentityUser
     [JsonIgnore]
     public virtual ICollection<Message>? ReceivedMessages { get; set; }
 
-    [JsonIgnore]
     public virtual ICollection<GroupMember>? GroupMembers { get; set; } 
        
 }

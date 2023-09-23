@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Group = RealChatApi.Models.Group;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 
 namespace RealChatApi.Services
 {
@@ -23,12 +24,15 @@ namespace RealChatApi.Services
         private readonly ApplicationDbContext _Context;
         private readonly static connection<string> _connections = new connection<string>();
         private readonly IHubContext<ChatHub> _hubContext;
-        public GroupService(IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public GroupService(UserManager<ApplicationUser> userManager, IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _groupRepository = groupRepository;
             _httpContextAccessor = httpContextAccessor;
             _Context = context;
             _hubContext = hubContext;
+            _userManager = userManager;
         }
 
         public async Task<GroupResponseDTO> CreateGroup(GroupCreateRequestDTO request)
@@ -125,7 +129,7 @@ namespace RealChatApi.Services
             {
                 GroupId = group.Id,
                 GroupName = group.GroupName,
-                GroupMembers = group.GroupMembers.Select(gm => gm.UserId).ToList()
+                GroupMembers = group.GroupMembers.Select(gm => gm.User?.Name).ToList()
             };
 
             return new OkObjectResult(response);
@@ -206,12 +210,23 @@ namespace RealChatApi.Services
                 return new NotFoundObjectResult("Group not found.");
             }
             var memberIds = await _groupRepository.GetGroupMemberIdsAsync(groupId);
+            
 
+            // Retrieve user names based on member IDs
+            var memberNames = new List<string>();
+            foreach (var memberId in memberIds)
+            {
+                var user = await _userManager.FindByIdAsync(memberId);
+                if (user != null)
+                {
+                    memberNames.Add(user.Name);
+                }
+            }
             var response = new
             {
                 GroupId = group.Id,
                 GroupName = group.GroupName,
-                Members = memberIds
+                Members = memberNames
             };
             return new OkObjectResult(response);
         }

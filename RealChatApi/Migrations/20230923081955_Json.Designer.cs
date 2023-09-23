@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RealChatApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230921090613_ManyToManyRelationship")]
-    partial class ManyToManyRelationship
+    [Migration("20230923081955_Json")]
+    partial class Json
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

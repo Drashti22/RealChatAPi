@@ -65,6 +65,7 @@ namespace RealChatApi.Repositories
         // Retrieve the group with its associated GroupMembers
         var group = await _context.Groups
             .Include(g => g.GroupMembers)
+            .ThenInclude(gm => gm.User)
             .FirstOrDefaultAsync(g => g.Id == groupId);
 
         return group;

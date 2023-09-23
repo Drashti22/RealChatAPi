@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RealChatApi.Migrations
 {
     /// <inheritdoc />
-    public partial class ManyToManyRelationship : Migration
+    public partial class RemovedJson : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
