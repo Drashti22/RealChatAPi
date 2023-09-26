@@ -25,14 +25,16 @@ namespace RealChatApi.Services
         private readonly static connection<string> _connections = new connection<string>();
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IServiceProvider _serviceProvider;
 
-        public GroupService(UserManager<ApplicationUser> userManager, IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
+        public GroupService(IServiceProvider serviceProvider,UserManager<ApplicationUser> userManager, IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _groupRepository = groupRepository;
             _httpContextAccessor = httpContextAccessor;
             _Context = context;
             _hubContext = hubContext;
             _userManager = userManager;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<GroupResponseDTO> CreateGroup(GroupCreateRequestDTO request)
@@ -62,6 +64,8 @@ namespace RealChatApi.Services
             };
             group.GroupMembers.Add(groupMember);
             await _groupRepository.CreateGroup(group);
+            await AssignGroupRole(groupMember, "Admin", group.Id);
+            
             var response = new GroupResponseDTO
             {
                 GroupId = group.Id,
@@ -70,6 +74,25 @@ namespace RealChatApi.Services
             };
             return response;
 
+        }
+        private async Task AssignGroupRole(GroupMember groupMember, string roleName, int groupId)
+        {
+            
+            var existingRole = await _Context.GroupRoles.FirstOrDefaultAsync(gr => gr.GroupId == groupId && gr.UserId == groupMember.UserId);
+
+            if (existingRole == null)
+            {
+                
+                var groupRole = new GroupRole
+                {
+                    GroupId = groupId,
+                    UserId = groupMember.UserId,
+                    Role = roleName,
+                };
+
+                _Context.GroupRoles.Add(groupRole);
+                await _Context.SaveChangesAsync();
+            }
         }
         public async Task<ApplicationUser> GetCurrentLoggedInUser()
         {

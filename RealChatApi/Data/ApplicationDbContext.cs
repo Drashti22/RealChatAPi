@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<GroupMember> GroupMembers { get; set; }
 
+    public DbSet<GroupRole> GroupRoles { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure one-to-many relationship between User and Message

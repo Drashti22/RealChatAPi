@@ -20,7 +20,7 @@ namespace RealChatApi.Controllers
             _context = context;
             _groupService = groupService;
         }
-
+        
         [HttpPost]
         public async Task<GroupResponseDTO> CreateGroup([FromBody] GroupCreateRequestDTO request)
         {
