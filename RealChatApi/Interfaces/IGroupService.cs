@@ -12,7 +12,7 @@ namespace RealChatApi.Interfaces
 
         Task<IActionResult> GetGroups();
 
-        Task<IActionResult> AddMember(int groupId, AddMemberReqDTO requset);
+        Task<IActionResult> UpdateMembers(int groupId, UpdateGroupMembersDTO requset);
 
         Task<IActionResult> SendMessage(int groupId, GroupMessageRequestDTO messageRequest);
 

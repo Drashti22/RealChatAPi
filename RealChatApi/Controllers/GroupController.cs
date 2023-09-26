@@ -31,10 +31,10 @@ namespace RealChatApi.Controllers
         {
             return await _groupService.GetGroups();
         }
-        [HttpPost("groups/{groupId}/members")]
-        public async Task <IActionResult> addMember(int groupId, [FromBody] AddMemberReqDTO requset)
+        [HttpPut("groups/{groupId}/members")]
+        public async Task <IActionResult> UpdateMembers(int groupId, [FromBody] UpdateGroupMembersDTO requset)
         {
-            return await _groupService.AddMember(groupId, requset);
+            return await _groupService.UpdateMembers(groupId, requset);
         }
         [HttpPost("{groupId}/messages")]
         public async Task<IActionResult> SendMessage(int groupId, [FromBody] GroupMessageRequestDTO messageRequest)

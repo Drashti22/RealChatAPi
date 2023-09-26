@@ -100,15 +100,6 @@ builder.Services.AddSingleton<IConnection<string>, connection<string>>();
 
 var app = builder.Build();
 
-var serviceProvider = app.Services.CreateScope().ServiceProvider;
-var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-var adminRoleExists = await roleManager.RoleExistsAsync("Admin");
-if (!adminRoleExists)
-{
-    await roleManager.CreateAsync(new IdentityRole("Admin"));
-}
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
