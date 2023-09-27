@@ -97,5 +97,12 @@ namespace RealChatApi.Repositories
                 .Select(gm => gm.UserId)
                 .ToListAsync();
         }
+        public async Task<Group> RemoveGroup(Group group)
+        {
+            _context.Groups.Remove(group);
+            await _context.SaveChangesAsync();
+            return group;
+
+        }
     }
 }

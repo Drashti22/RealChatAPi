@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RealChatApi.DTOs;
 using RealChatApi.Models;
+using System.Text.RegularExpressions;
 
 namespace RealChatApi.Interfaces
 {
@@ -19,6 +20,8 @@ namespace RealChatApi.Interfaces
         Task<IActionResult> GetGroupMessages(int groupId);
 
         Task<IActionResult> GetGroupInfo(int groupId);
+
+        Task<IActionResult> RemoveGroup( int groupId);
 
     }
 }

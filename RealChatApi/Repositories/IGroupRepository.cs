@@ -25,5 +25,7 @@ namespace RealChatApi.Repositories
 
         Task<List<string>> GetGroupMemberIdsAsync(int groupId);
 
+        Task<Group> RemoveGroup(Group group);
+
     }
 }

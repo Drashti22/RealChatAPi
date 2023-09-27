@@ -49,6 +49,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(gu => gu.GroupMembers)
             .HasForeignKey(g => g.GroupId);
 
+        modelBuilder.Entity<Message>()
+            .HasOne(m => m.Group)
+            .WithMany(g => g.Messages)
+            .HasForeignKey(m => m.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
         base.OnModelCreating(modelBuilder);
     }
 }

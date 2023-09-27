@@ -51,5 +51,10 @@ namespace RealChatApi.Controllers
         {
             return await _groupService.GetGroupInfo(groupId);
         }
+        [HttpDelete("{groupId}")]
+        public async Task<IActionResult> RemoveGroup(int groupId)
+        {
+            return await _groupService.RemoveGroup(groupId);
+        }
     }
 }
