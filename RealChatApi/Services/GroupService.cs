@@ -317,11 +317,11 @@ namespace RealChatApi.Services
                 var removedGroup = await _groupRepository.RemoveGroup(group);
                 if (removedGroup != null)
                 {
-                    return new OkObjectResult("Group removed successfully.");
+                    return new OkObjectResult(new {message = "Group Removed Successfully!!"});
                 }
                 else
                 {
-                    return new NotFoundObjectResult("Group could not be removed.");
+                    return new NotFoundObjectResult(new {message = "Group could not be removed." });
                 }
             }
             else
