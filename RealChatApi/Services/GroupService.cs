@@ -72,6 +72,13 @@ namespace RealChatApi.Services
                 GroupName = group.GroupName,
                 //Members = group.Members.Select(u => u.Id).ToList()
             };
+            if (request.IncludePreviousChat)
+            {
+                // Fetch previous chat history and send it to the new member
+                   await _groupRepository.GetGroupMessagesAsync(group.Id);
+                // TODO: Implement the logic to send previous chat history
+            }
+
             return response;
 
         }
@@ -154,6 +161,12 @@ namespace RealChatApi.Services
                         GroupId = groupId
                     };
                     group.GroupMembers.Add(newMember);
+                    if (requset.IncludePreviousChat)
+                    {
+                        // Fetch and send previous chat history to the new member
+                        var previousChat = await _groupRepository.GetGroupMessagesAsync(groupId);
+                        // TODO: Implement the logic to send previous chat history
+                    }
                     await _Context.SaveChangesAsync();
 
                 }
@@ -241,7 +254,7 @@ namespace RealChatApi.Services
             return new OkObjectResult(response);
         }
 
-        public async Task<IActionResult> GetGroupMessages(int groupId)
+        public async Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat = false)
         {
             var currentUser = await GetCurrentLoggedInUser();
 
@@ -256,7 +269,18 @@ namespace RealChatApi.Services
             {
                 return new NotFoundObjectResult("Group not found.");
             }
-            var messages = await _groupRepository.GetGroupMessagesAsync(groupId);
+            IEnumerable<Message> messages;
+
+            if (includePreviousChat)
+            {
+                // If includePreviousChat is true, fetch both previous and current messages
+                messages = await _groupRepository.GetGroupMessagesAsync(groupId);
+            }
+            else
+            {
+                // If includePreviousChat is false, fetch only the current messages
+                messages = await _groupRepository.GetGroupCurrentMessagesAsync(groupId, DateTime.MinValue);
+            }
 
             return new OkObjectResult(messages);
         }
