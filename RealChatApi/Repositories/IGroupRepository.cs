@@ -22,8 +22,10 @@ namespace RealChatApi.Repositories
 
         Task<Message> CreateMessageAsync(Message message);
 
-        Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId);
+        Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId, bool includePreviousChat);
         Task<IEnumerable<Message>> GetGroupCurrentMessagesAsync(int groupId, DateTime fromDate);
+
+        Task SendPreviousChatHistoryAsync(int groupId, string newMemberId, IEnumerable<Message> previousChat, bool includePreviousChat = false);
 
         Task<List<string>> GetGroupMemberIdsAsync(int groupId);
 

@@ -28,7 +28,7 @@ namespace RealChatApi.Models
         [ForeignKey("ReceiverId")]
         [JsonIgnore]
         public virtual ApplicationUser? Receiver { get; set; }
-
+                    
         public int? GroupId { get; set; }
         [ForeignKey("GroupId")]
         [JsonIgnore]

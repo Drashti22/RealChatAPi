@@ -92,10 +92,61 @@ namespace RealChatApi.Repositories
         }
         public async Task<IEnumerable<Message>> GetGroupCurrentMessagesAsync(int groupId, DateTime fromDate)
         {
-            return await _context.Messages
-                .Where(message => message.GroupId == groupId && message.Timestamp >= fromDate)
+            var fromDateOrDefault = fromDate.ToLocalTime();
+
+            var messages = await _context.Messages
+                .Where(message => message.GroupId == groupId && message.Timestamp > fromDateOrDefault)
                 .OrderBy(message => message.Timestamp)
                 .ToListAsync();
+
+            // Log some debugging information
+            Console.WriteLine($"fromDate: {fromDate}");
+            Console.WriteLine($"fromDateOrDefault: {fromDateOrDefault}");
+
+            foreach (var message in messages)
+            {
+                Console.WriteLine($"Message Timestamp: {message.Timestamp}");
+            }
+
+            return messages;
+        }
+
+        public async Task SendPreviousChatHistoryAsync(int groupId, string newMemberId, IEnumerable<Message> previousChat, bool includePreviousChat = false)
+        {
+            // Assuming the new member is not already part of the group, add them to the group
+            if (includePreviousChat)
+            {
+                var newMemberGroup = new GroupMember
+                {
+                    UserId = newMemberId,
+                    GroupId = groupId
+                };
+
+                _context.GroupMembers.Add(newMemberGroup);
+                await _context.SaveChangesAsync();
+
+                // Add previous chat messages to the new member's chat history
+                foreach (var message in previousChat)
+                {
+                    // Ensure the message is related to the correct group
+                    if (message.GroupId == groupId)
+                    {
+                        var newMessage = new Message
+                        {
+                            SenderId = message.SenderId,
+                            MessageType = message.MessageType,
+                            ReceiverId = message.ReceiverId,
+                            GroupId = groupId,
+                            Content = message.Content,
+                            Timestamp = message.Timestamp
+                        };
+
+                        _context.Messages.Add(newMessage);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+            }
         }
         public async Task<List<string>> GetGroupMemberIdsAsync(int groupId)
         {

@@ -17,7 +17,7 @@ namespace RealChatApi.Interfaces
 
         Task<IActionResult> SendMessage(int groupId, GroupMessageRequestDTO messageRequest);
 
-        Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat = false);
+        Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat );
 
         Task<IActionResult> GetGroupInfo(int groupId);
 
