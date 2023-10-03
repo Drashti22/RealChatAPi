@@ -1,4 +1,4 @@
-﻿using Azure;
+﻿  using Azure;
 using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -72,12 +72,7 @@ namespace RealChatApi.Services
                 GroupName = group.GroupName,
                 //Members = group.Members.Select(u => u.Id).ToList()
             };
-            if (request.IncludePreviousChat)
-            {
-                // Fetch previous chat history and send it to the new member
-                   await _groupRepository.GetGroupMessagesAsync(group.Id);
-                // TODO: Implement the logic to send previous chat history
-            }
+           
 
             return response;
 
@@ -163,7 +158,7 @@ namespace RealChatApi.Services
                         GroupId = groupId
                     };
                     group.GroupMembers.Add(newMember);
-                    List<Message> previousChat = null;
+                    
 
                     if (requset.IncludePreviousChat)
                     {
@@ -172,11 +167,12 @@ namespace RealChatApi.Services
                             trackedEntity.State = EntityState.Detached;
                         }
 
-                        previousChat = (await _groupRepository.GetGroupMessagesAsync(groupId)).ToList();
-                        await _groupRepository.SendPreviousChatHistoryAsync(groupId, memberId, previousChat, includePreviousChat: true);
+
+                        var previousChat = await _groupRepository.GetGroupMessagesAsync(groupId, requset.IncludePreviousChat, timestampBeforeAddingMembers);
+                        var previousChatList = previousChat.ToList();
+
+                        await _groupRepository.SendPreviousChatHistoryAsync(groupId, previousChatList, memberId, timestampBeforeAddingMembers, includePreviousChat: true);
                     }
-                  
-                    var messagesResult = await GetGroupMessages(groupId, requset.IncludePreviousChat);
                     await _Context.SaveChangesAsync();
 
                 }
@@ -215,7 +211,7 @@ namespace RealChatApi.Services
             }
             await _Context.SaveChangesAsync();
             var result = await _groupRepository.GetGroupWithMembersAsync(groupId);
-            var response = new AddMemberResDTO
+            var response = new AddMemberResDTO                       
             {
                 GroupId = result.Id,
                 GroupName = result.GroupName,
@@ -269,7 +265,7 @@ namespace RealChatApi.Services
             return new OkObjectResult(response);
         }
 
-        public async Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat = false)
+        public async Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat, DateTime timestampOfMemberAdded)
         {
             var currentUser = await GetCurrentLoggedInUser();
 
@@ -284,19 +280,9 @@ namespace RealChatApi.Services
             {
                 return new NotFoundObjectResult("Group not found.");
             }
-            IEnumerable<Message> messages;
+           
+            var messages = await _groupRepository.GetGroupMessagesAsync(groupId, includePreviousChat, timestampOfMemberAdded);
 
-            if (includePreviousChat)
-            {
-                // If includePreviousChat is true, fetch both previous and current messages
-                messages = await _groupRepository.GetGroupMessagesAsync(groupId);
-            }
-            else
-            {
-                // If includePreviousChat is false, fetch only the current messages
-                messages = await _groupRepository.GetGroupCurrentMessagesAsync(groupId, DateTime.Now);
-            }
-            
 
             return new OkObjectResult(messages);
         }

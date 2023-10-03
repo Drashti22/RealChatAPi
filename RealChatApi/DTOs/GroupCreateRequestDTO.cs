@@ -7,7 +7,6 @@ namespace RealChatApi.DTOs
         [Required(ErrorMessage = "Group name is required.")]
         public string GroupName { get; set; }
 
-        public bool IncludePreviousChat { get; set; }
 
     }
 }

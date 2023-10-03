@@ -83,22 +83,38 @@ namespace RealChatApi.Repositories
             return await _context.Groups
                 .FirstOrDefaultAsync(g => g.Id == groupId);
         }
-        public async Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId)
+        public async Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId, bool includePreviousChat, DateTime newMemberAddedTimestamp)
         {
-            return await _context.Messages
-                .Where(message => message.GroupId == groupId)
-                .OrderBy(message => message.Timestamp)
-                .ToListAsync();
+            if (includePreviousChat)
+            {
+                return await _context.Messages
+                    .Where(message => message.GroupId == groupId)
+                    .OrderBy(message => message.Timestamp)
+                    .ToListAsync();
+            }
+            else
+            {
+                // If includePreviousChat is false, fetch only the current messages
+                return await GetGroupCurrentMessagesAsync(groupId, newMemberAddedTimestamp);
+            }
         }
         public async Task<IEnumerable<Message>> GetGroupCurrentMessagesAsync(int groupId, DateTime fromDate)
         {
-            var fromDateOrDefault = fromDate.ToLocalTime();
 
+            if (fromDate == DateTime.MinValue)
+            {
+                // Handle the case when no specific date is provided
+                return await _context.Messages
+                    .Where(message => message.GroupId == groupId)
+                    .OrderBy(message => message.Timestamp)
+                    .ToListAsync();
+            }
+
+            var fromDateOrDefault = fromDate;
             var messages = await _context.Messages
-                .Where(message => message.GroupId == groupId && message.Timestamp > fromDateOrDefault)
-                .OrderBy(message => message.Timestamp)
-                .ToListAsync();
-
+                   .Where(message => message.GroupId == groupId && message.Timestamp > fromDateOrDefault)
+                   .OrderBy(message => message.Timestamp)
+                   .ToListAsync();
             // Log some debugging information
             Console.WriteLine($"fromDate: {fromDate}");
             Console.WriteLine($"fromDateOrDefault: {fromDateOrDefault}");
@@ -111,7 +127,7 @@ namespace RealChatApi.Repositories
             return messages;
         }
 
-        public async Task SendPreviousChatHistoryAsync(int groupId, string newMemberId, IEnumerable<Message> previousChat, bool includePreviousChat = false)
+        public async Task SendPreviousChatHistoryAsync(int groupId,IEnumerable<Message> previousChat, string newMemberId, DateTime timestampBeforeAddingMembers, bool includePreviousChat = false)
         {
             // Assuming the new member is not already part of the group, add them to the group
             if (includePreviousChat)
@@ -129,7 +145,7 @@ namespace RealChatApi.Repositories
                 foreach (var message in previousChat)
                 {
                     // Ensure the message is related to the correct group
-                    if (message.GroupId == groupId)
+                    if (message.GroupId == groupId && message.Timestamp > timestampBeforeAddingMembers)
                     {
                         var newMessage = new Message
                         {
