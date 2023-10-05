@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace RealChatApi.Migrations
 {
     /// <inheritdoc />
-    public partial class RemovedJson : Migration
+    public partial class newfieldsadded : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -187,11 +187,34 @@ namespace RealChatApi.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GroupRoles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Role = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GroupRoles", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_GroupRoles_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "GroupMembers",
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    GroupId = table.Column<int>(type: "int", nullable: false)
+                    GroupId = table.Column<int>(type: "int", nullable: false),
+                    JoinTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IncludePreviousChat = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -240,7 +263,8 @@ namespace RealChatApi.Migrations
                         name: "FK_Messages_Groups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "Groups",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
@@ -288,6 +312,11 @@ namespace RealChatApi.Migrations
                 column: "GroupId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GroupRoles_UserId",
+                table: "GroupRoles",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Messages_GroupId",
                 table: "Messages",
                 column: "GroupId");
@@ -323,6 +352,9 @@ namespace RealChatApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "GroupMembers");
+
+            migrationBuilder.DropTable(
+                name: "GroupRoles");
 
             migrationBuilder.DropTable(
                 name: "Logs");

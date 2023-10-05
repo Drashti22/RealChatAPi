@@ -146,39 +146,49 @@ namespace RealChatApi.Services
 
 
             DateTime timestampBeforeAddingMembers = DateTime.Now;
+            Console.WriteLine($"Timestamp before adding members: {timestampBeforeAddingMembers}");
+            Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
             foreach (var memberId in requset.MembersToAdd)
             {
                 var existingMember = group.GroupMembers.FirstOrDefault(gm => gm.UserId == memberId);
 
                 if (existingMember == null)
                 {
+                    var timestampNow = DateTime.Now;
+                    bool include = requset.IncludePreviousChat;
                     var newMember = new GroupMember
                     {
                         UserId = memberId,
-                        GroupId = groupId
+                        GroupId = groupId,
+                        JoinTime = timestampNow,  // Set the timestamp
+                        IncludePreviousChat = include
                     };
+                    Console.WriteLine($"JoinTime for new member: {timestampNow}");
+                    Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
                     group.GroupMembers.Add(newMember);
-                    
+                    Console.WriteLine($"JoinTime for new member: {timestampNow}");
+                    Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
 
-                    if (requset.IncludePreviousChat)
-                    {
-                        foreach (var trackedEntity in _Context.ChangeTracker.Entries().ToList())
-                        {
-                            trackedEntity.State = EntityState.Detached;
-                        }
+                    //if (requset.IncludePreviousChat)
+                    //{
+                    //    foreach (var trackedEntity in _Context.ChangeTracker.Entries().ToList())
+                    //    {
+                    //        trackedEntity.State = EntityState.Detached;
+                    //    }
 
 
-                        var previousChat = await _groupRepository.GetGroupMessagesAsync(groupId, requset.IncludePreviousChat, timestampBeforeAddingMembers);
-                        var previousChatList = previousChat.ToList();
+                    //    var previousChat = await _groupRepository.GetGroupMessagesAsync(groupId, requset.IncludePreviousChat, timestampBeforeAddingMembers);
+                    //    var previousChatList = previousChat.ToList();
 
-                        await _groupRepository.SendPreviousChatHistoryAsync(groupId, previousChatList, memberId, timestampBeforeAddingMembers, includePreviousChat: true);
-                    }
+                    //    await _groupRepository.SendPreviousChatHistoryAsync(groupId, previousChatList, memberId, timestampBeforeAddingMembers, includePreviousChat: true);
+                    //}
                     await _Context.SaveChangesAsync();
+                    Console.WriteLine($"JoinTime for new member: {timestampNow}");
+                    Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
 
                 }
                 else
-                {
-                    // Update the existing entity instead of adding a new one
+                {                            
                     _Context.Entry(existingMember).State = EntityState.Detached;
                 }
             }
@@ -207,9 +217,9 @@ namespace RealChatApi.Services
                     {
                         return new UnauthorizedObjectResult("You cannot remove an admin from the group.");
                     }
+            await _Context.SaveChangesAsync();
                 }
             }
-            await _Context.SaveChangesAsync();
             var result = await _groupRepository.GetGroupWithMembersAsync(groupId);
             var response = new AddMemberResDTO                       
             {

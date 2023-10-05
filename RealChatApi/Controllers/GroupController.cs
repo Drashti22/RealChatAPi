@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RealChatApi.DTOs;
 using RealChatApi.Interfaces;
@@ -34,17 +35,13 @@ namespace RealChatApi.Controllers
         [HttpPut("groups/{groupId}/members")]
         public async Task <IActionResult> UpdateMembers(int groupId, [FromBody] UpdateGroupMembersDTO requset)
         {
+            //requset.AddedTime = DateTime.Now;
             return await _groupService.UpdateMembers(groupId, requset);
         }
         [HttpPost("{groupId}/messages")]
         public async Task<IActionResult> SendMessage(int groupId, [FromBody] GroupMessageRequestDTO messageRequest)
         {
             return await _groupService.SendMessage(groupId, messageRequest);
-        }
-        [HttpGet("{groupId}/messages")]
-        public async Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat, DateTime timestampOfMemberAdded)
-        {
-            return await _groupService.GetGroupMessages(groupId, includePreviousChat, timestampOfMemberAdded);
         }
         [HttpGet("{groupId}")]
         public async Task<IActionResult> GetGroupInfo(int groupId)

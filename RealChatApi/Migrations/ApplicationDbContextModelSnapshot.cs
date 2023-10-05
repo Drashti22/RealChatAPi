@@ -252,6 +252,12 @@ namespace RealChatApi.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IncludePreviousChat")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinTime")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("UserId", "GroupId");
 
                     b.HasIndex("GroupId");
