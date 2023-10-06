@@ -100,7 +100,6 @@ builder.Services.AddSingleton<IConnection<string>, connection<string>>();
 
 var app = builder.Build();
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

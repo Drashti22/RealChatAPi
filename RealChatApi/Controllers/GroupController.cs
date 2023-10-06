@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RealChatApi.DTOs;
 using RealChatApi.Interfaces;
@@ -20,7 +21,7 @@ namespace RealChatApi.Controllers
             _context = context;
             _groupService = groupService;
         }
-
+        
         [HttpPost]
         public async Task<GroupResponseDTO> CreateGroup([FromBody] GroupCreateRequestDTO request)
         {
@@ -31,10 +32,11 @@ namespace RealChatApi.Controllers
         {
             return await _groupService.GetGroups();
         }
-        [HttpPost("groups/{groupId}/members")]
-        public async Task <IActionResult> addMember(int groupId, [FromBody] AddMemberReqDTO requset)
+        [HttpPut("groups/{groupId}/members")]
+        public async Task <IActionResult> UpdateMembers(int groupId, [FromBody] UpdateGroupMembersDTO requset)
         {
-            return await _groupService.AddMember(groupId, requset);
+            //requset.AddedTime = DateTime.Now;
+            return await _groupService.UpdateMembers(groupId, requset);
         }
         [HttpPost("{groupId}/messages")]
         public async Task<IActionResult> SendMessage(int groupId, [FromBody] GroupMessageRequestDTO messageRequest)
@@ -42,7 +44,7 @@ namespace RealChatApi.Controllers
             return await _groupService.SendMessage(groupId, messageRequest);
         }
         [HttpGet("{groupId}/messages")]
-        public async Task<IActionResult> GetGroupMessages(int groupId)
+        public async Task<IActionResult> GetMessages(int groupId)
         {
             return await _groupService.GetGroupMessages(groupId);
         }
@@ -50,6 +52,11 @@ namespace RealChatApi.Controllers
         public async Task<IActionResult> GetGroupInfo(int groupId)
         {
             return await _groupService.GetGroupInfo(groupId);
+        }
+        [HttpDelete("{groupId}")]
+        public async Task<IActionResult> RemoveGroup(int groupId)
+        {
+            return await _groupService.RemoveGroup(groupId);
         }
     }
 }

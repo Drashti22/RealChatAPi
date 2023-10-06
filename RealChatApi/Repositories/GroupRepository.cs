@@ -86,16 +86,81 @@ namespace RealChatApi.Repositories
         public async Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId)
         {
             return await _context.Messages
-                .Where(message => message.GroupId == groupId)
-                .OrderBy(message => message.Timestamp)
+                .Where(m => m.GroupId == groupId)
                 .ToListAsync();
         }
+        public async Task<IEnumerable<Message>> GetMessagesAfterTimestampAsync(int groupId, DateTime timestamp)
+        {
+            return await _context.Messages
+                .Where(m => m.GroupId == groupId && m.Timestamp > timestamp)
+                .ToListAsync();
+        }
+
+        public async Task<GroupMemberPreferences> GetMemberPreferencesAsync(string userId, int groupId)
+        {
+            // Assuming there's a DbSet<GroupMember> in your DbContext
+            var memberPreferences = await _context.GroupMembers
+                .Where(gm => gm.UserId == userId && gm.GroupId == groupId)
+                .Select(gm => new GroupMemberPreferences
+                {
+                    IncludePreviousChatPreference = gm.IncludePreviousChat,
+                    TimestampOfMemberAdded = gm.JoinTime
+                })
+                .FirstOrDefaultAsync();
+
+            return memberPreferences ?? new GroupMemberPreferences();
+        }
+
+        //public async Task SendPreviousChatHistoryAsync(int groupId,IEnumerable<Message> previousChat, string newMemberId, DateTime timestampBeforeAddingMembers, bool includePreviousChat = false)
+        //{
+        //    // Assuming the new member is not already part of the group, add them to the group
+        //    if (includePreviousChat)
+        //    {
+        //        var newMemberGroup = new GroupMember
+        //        {
+        //            UserId = newMemberId,
+        //            GroupId = groupId
+        //        };
+
+        //        _context.GroupMembers.Add(newMemberGroup);
+        //        await _context.SaveChangesAsync();
+
+        //        // Add previous chat messages to the new member's chat history
+        //        foreach (var message in previousChat)
+        //        {
+        //            // Ensure the message is related to the correct group
+        //            if (message.GroupId == groupId && message.Timestamp > timestampBeforeAddingMembers)
+        //            {
+        //                var newMessage = new Message
+        //                {
+        //                    SenderId = message.SenderId,
+        //                    MessageType = message.MessageType,
+        //                    ReceiverId = message.ReceiverId,
+        //                    GroupId = groupId,
+        //                    Content = message.Content,
+        //                    Timestamp = message.Timestamp
+        //                };
+
+        //                _context.Messages.Add(newMessage);
+        //            }
+        //        }
+
+        //        await _context.SaveChangesAsync();
+        //    }
+        //}
         public async Task<List<string>> GetGroupMemberIdsAsync(int groupId)
         {
             return await _context.GroupMembers
                 .Where(gm => gm.GroupId == groupId)
                 .Select(gm => gm.UserId)
                 .ToListAsync();
+        }
+        public async Task<Group> RemoveGroup(Group group)
+        {
+            _context.Groups.Remove(group);
+            await _context.SaveChangesAsync();
+            return group;
+
         }
     }
 }

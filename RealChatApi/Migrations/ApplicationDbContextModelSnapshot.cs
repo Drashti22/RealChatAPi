@@ -252,11 +252,43 @@ namespace RealChatApi.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
+                    b.Property<bool>("IncludePreviousChat")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("JoinTime")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("UserId", "GroupId");
 
                     b.HasIndex("GroupId");
 
                     b.ToTable("GroupMembers");
+                });
+
+            modelBuilder.Entity("RealChatApi.Models.GroupRole", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("GroupRoles");
                 });
 
             modelBuilder.Entity("RealChatApi.Models.Log", b =>
@@ -392,11 +424,23 @@ namespace RealChatApi.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RealChatApi.Models.GroupRole", b =>
+                {
+                    b.HasOne("ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RealChatApi.Models.Message", b =>
                 {
                     b.HasOne("RealChatApi.Models.Group", "Group")
                         .WithMany("Messages")
-                        .HasForeignKey("GroupId");
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ApplicationUser", "Receiver")
                         .WithMany("ReceivedMessages")

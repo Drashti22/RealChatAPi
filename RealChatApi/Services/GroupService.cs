@@ -1,4 +1,4 @@
-﻿using Azure;
+﻿  using Azure;
 using Azure.Core;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -25,14 +25,16 @@ namespace RealChatApi.Services
         private readonly static connection<string> _connections = new connection<string>();
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IServiceProvider _serviceProvider;
 
-        public GroupService(UserManager<ApplicationUser> userManager, IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
+        public GroupService(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager, IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
             _groupRepository = groupRepository;
             _httpContextAccessor = httpContextAccessor;
             _Context = context;
             _hubContext = hubContext;
             _userManager = userManager;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task<GroupResponseDTO> CreateGroup(GroupCreateRequestDTO request)
@@ -62,14 +64,37 @@ namespace RealChatApi.Services
             };
             group.GroupMembers.Add(groupMember);
             await _groupRepository.CreateGroup(group);
+            await AssignGroupRole(groupMember, "Admin", group.Id);
+
             var response = new GroupResponseDTO
             {
                 GroupId = group.Id,
                 GroupName = group.GroupName,
                 //Members = group.Members.Select(u => u.Id).ToList()
             };
+           
+
             return response;
 
+        }
+        private async Task AssignGroupRole(GroupMember groupMember, string roleName, int groupId)
+        {
+
+            var existingRole = await _Context.GroupRoles.FirstOrDefaultAsync(gr => gr.GroupId == groupId && gr.UserId == groupMember.UserId);
+
+            if (existingRole == null)
+            {
+
+                var groupRole = new GroupRole
+                {
+                    GroupId = groupId,
+                    UserId = groupMember.UserId,
+                    Role = roleName,
+                };
+
+                _Context.GroupRoles.Add(groupRole);
+                await _Context.SaveChangesAsync();
+            }
         }
         public async Task<ApplicationUser> GetCurrentLoggedInUser()
         {
@@ -93,7 +118,12 @@ namespace RealChatApi.Services
             var userGroups = await _groupRepository.GetGroups();
             return new OkObjectResult(userGroups);
         }
-        public async Task<IActionResult> AddMember(int groupId, AddMemberReqDTO requset)
+        private bool IsUserAdminInGroup(int groupId, string userId)
+        {
+            Console.WriteLine($"Checking admin status for groupId: {groupId}, userId: {userId}");
+            return _Context.GroupRoles.Any(gr => gr.GroupId == groupId && gr.UserId == userId && gr.Role == "Admin");
+        }
+        public async Task<IActionResult> UpdateMembers(int groupId, UpdateGroupMembersDTO requset)
         {
             var currentUser = await GetCurrentLoggedInUser();
             if (currentUser == null)
@@ -110,26 +140,96 @@ namespace RealChatApi.Services
             {
                 return new NotFoundObjectResult("Group not found.");
             }
-            foreach (var memberId in requset.GroupMembers)
+            bool isAdmin = await _Context.GroupRoles.AnyAsync(gr => gr.GroupId == groupId && gr.UserId == currentUser.Id && gr.Role == "Admin");
+            Console.WriteLine($"isAdmin: {isAdmin}");
+            Console.WriteLine($"IsUserAdminInGroup result for groupId: {groupId}, userId: {currentUser.Id}: {isAdmin}");
+
+
+            DateTime timestampBeforeAddingMembers = DateTime.Now;
+            Console.WriteLine($"Timestamp before adding members: {timestampBeforeAddingMembers}");
+            Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
+            foreach (var memberId in requset.MembersToAdd)
             {
                 var existingMember = group.GroupMembers.FirstOrDefault(gm => gm.UserId == memberId);
 
                 if (existingMember == null)
                 {
+                    var timestampNow = DateTime.Now;
+                    bool include = requset.IncludePreviousChat;
                     var newMember = new GroupMember
                     {
                         UserId = memberId,
-                        GroupId = groupId
+                        GroupId = groupId,
+                        JoinTime = timestampNow,  // Set the timestamp
+                        IncludePreviousChat = include
                     };
+                    Console.WriteLine($"JoinTime for new member: {timestampNow}");
+                    Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
                     group.GroupMembers.Add(newMember);
+                    Console.WriteLine($"JoinTime for new member: {timestampNow}");
+                    Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
+
+                    //if (requset.IncludePreviousChat)
+                    //{
+                    //    foreach (var trackedEntity in _Context.ChangeTracker.Entries().ToList())
+                    //    {
+                    //        trackedEntity.State = EntityState.Detached;
+                    //    }
+
+
+                    //    var previousChat = await _groupRepository.GetGroupMessagesAsync(groupId, requset.IncludePreviousChat, timestampBeforeAddingMembers);
+                    //    var previousChatList = previousChat.ToList();
+
+                    //    await _groupRepository.SendPreviousChatHistoryAsync(groupId, previousChatList, memberId, timestampBeforeAddingMembers, includePreviousChat: true);
+                    //}
+                    await _Context.SaveChangesAsync();
+                    Console.WriteLine($"JoinTime for new member: {timestampNow}");
+                    Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
+
+                }
+                else
+                {                            
+                    _Context.Entry(existingMember).State = EntityState.Detached;
                 }
             }
-            await _Context.SaveChangesAsync();
-            var response = new AddMemberResDTO
+
+
+            foreach (var memberId in requset.MembersToRemove)
             {
-                GroupId = group.Id,
-                GroupName = group.GroupName,
-                GroupMembers = group.GroupMembers.Select(gm => gm.User?.Name).ToList()
+               
+                var userToRemove = await _userManager.FindByIdAsync(memberId);
+
+                if (userToRemove != null)
+                {
+                    bool isUserAdminInGroup = IsUserAdminInGroup(groupId, userToRemove.Id);
+                    Console.WriteLine($"isUserAdminInGroup for user {userToRemove.Id}: {isUserAdminInGroup}");
+                    // Check if the current user is an admin and if the user to remove is also an admin
+                    if (isAdmin || (!isAdmin && !isUserAdminInGroup))
+                    {
+                        // Remove the user from the group
+                        var memberToRemove = group.GroupMembers.FirstOrDefault(gm => gm.UserId == memberId);
+                        if (memberToRemove != null)
+                        {
+                            group.GroupMembers.Remove(memberToRemove);
+                        }
+                    }
+                    else
+                    {
+                        return new UnauthorizedObjectResult("You cannot remove an admin from the group.");
+                    }
+            await _Context.SaveChangesAsync();
+                }
+            }
+            var result = await _groupRepository.GetGroupWithMembersAsync(groupId);
+            var response = new AddMemberResDTO                       
+            {
+                GroupId = result.Id,
+                GroupName = result.GroupName,
+                GroupMembers = result.GroupMembers
+                                .Where(gm => gm.User != null)
+                                .Select(gm => gm.User.Name)
+                                .ToList()
+
             };
 
             return new OkObjectResult(response);
@@ -137,9 +237,9 @@ namespace RealChatApi.Services
 
         public async Task<IActionResult> SendMessage(int groupId, GroupMessageRequestDTO messageRequest)
         {
-            
+
             var currentUser = await GetCurrentLoggedInUser();
-           
+
             var isMemberOfGroup = await _groupRepository.IsUserMemberOfGroup(currentUser.Id, groupId);
             if (!isMemberOfGroup)
             {
@@ -161,10 +261,10 @@ namespace RealChatApi.Services
                 Group = group,
                 Timestamp = DateTime.Now
             };
-                
-             await _groupRepository.CreateMessageAsync(message);
-           
-             var response = new
+
+            await _groupRepository.CreateMessageAsync(message);
+
+            var response = new
             {
                 messageId = message.Id,
                 senderId = currentUser.Id,
@@ -190,8 +290,22 @@ namespace RealChatApi.Services
             {
                 return new NotFoundObjectResult("Group not found.");
             }
-            var messages = await _groupRepository.GetGroupMessagesAsync(groupId);
-           
+
+            var memberPreferences = await _groupRepository.GetMemberPreferencesAsync(currentUser.Id, groupId);
+
+            IEnumerable<Message> messages;
+
+            if (memberPreferences.IncludePreviousChatPreference)
+            {
+                // Retrieve all messages for the group
+                messages = await _groupRepository.GetGroupMessagesAsync(groupId);
+            }
+            else
+            {
+                // Retrieve messages after the specified timestamp for the group
+                messages = await _groupRepository.GetMessagesAfterTimestampAsync(groupId, memberPreferences.TimestampOfMemberAdded);
+            }
+
             return new OkObjectResult(messages);
         }
         public async Task<IActionResult> GetGroupInfo(int groupId)
@@ -210,7 +324,7 @@ namespace RealChatApi.Services
                 return new NotFoundObjectResult("Group not found.");
             }
             var memberIds = await _groupRepository.GetGroupMemberIdsAsync(groupId);
-            
+
 
             // Retrieve user names based on member IDs
             var memberNames = new List<string>();
@@ -229,6 +343,39 @@ namespace RealChatApi.Services
                 Members = memberNames
             };
             return new OkObjectResult(response);
+        }
+
+        public async Task<IActionResult> RemoveGroup (int groupId)
+        {
+            var currentUser = await GetCurrentLoggedInUser();
+            var isMemberOfGroup = await _groupRepository.IsUserMemberOfGroup(currentUser.Id, groupId);
+            if (!isMemberOfGroup)
+            {
+                return new UnauthorizedObjectResult("You are not a member of this group.");
+            }
+            var group = await _groupRepository.GetGroupAsync(groupId);
+
+            if (group == null)
+            {
+                return new NotFoundObjectResult("Group not found.");
+            }
+            bool isAdmin = await _Context.GroupRoles.AnyAsync(gr => gr.GroupId == groupId && gr.UserId == currentUser.Id && gr.Role == "Admin");
+            if (isAdmin)
+            {
+                var removedGroup = await _groupRepository.RemoveGroup(group);
+                if (removedGroup != null)
+                {
+                    return new OkObjectResult(new {message = "Group Removed Successfully!!"});
+                }
+                else
+                {
+                    return new NotFoundObjectResult(new {message = "Group could not be removed." });
+                }
+            }
+            else
+            {
+                return new UnauthorizedObjectResult("You are not authorized to remove this group.");
+            }
         }
     }
 }

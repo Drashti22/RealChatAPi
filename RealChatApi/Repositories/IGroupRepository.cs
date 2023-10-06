@@ -22,8 +22,13 @@ namespace RealChatApi.Repositories
         Task<Message> CreateMessageAsync(Message message);
 
         Task<IEnumerable<Message>> GetGroupMessagesAsync(int groupId);
+        Task<IEnumerable<Message>> GetMessagesAfterTimestampAsync(int groupId, DateTime timestamp);
 
+        // Task SendPreviousChatHistoryAsync(int groupId, IEnumerable<Message> previousChat, string newMemberId, DateTime timestampBeforeAddingMembers, bool includePreviousChat = false);
+        Task<GroupMemberPreferences> GetMemberPreferencesAsync(string userId, int groupId);
         Task<List<string>> GetGroupMemberIdsAsync(int groupId);
+
+        Task<Group> RemoveGroup(Group group);
 
     }
 }

@@ -13,6 +13,10 @@ namespace RealChatApi.Models
         public int GroupId { get; set; }
 
         [JsonIgnore]
-        public Group Group { get; set; }               
+        public Group Group { get; set; }
+
+        public DateTime JoinTime { get; set; }
+
+        public bool IncludePreviousChat { get; set; }
     }
 }

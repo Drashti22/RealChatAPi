@@ -69,7 +69,7 @@ namespace RealChatApi.Services
             if (user == null || !await _userManager.CheckPasswordAsync(user, requestDTO.password))
                 return new NotFoundObjectResult(new { Message = "Login failed due to inavalid credentials" });
 
-            var token = createJwtToken(user);
+            var token = CreateToken(user);
             user.Token = token;
             await _userManager.UpdateAsync(user);
             var responseDto = new LoginResponseDto

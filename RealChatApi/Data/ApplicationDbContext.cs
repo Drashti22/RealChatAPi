@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     public DbSet<GroupMember> GroupMembers { get; set; }
 
+    public DbSet<GroupRole> GroupRoles { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Configure one-to-many relationship between User and Message
@@ -48,6 +49,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             .WithMany(gu => gu.GroupMembers)
             .HasForeignKey(g => g.GroupId);
 
+        modelBuilder.Entity<Message>()
+            .HasOne(m => m.Group)
+            .WithMany(g => g.Messages)
+            .HasForeignKey(m => m.GroupId)
+            .OnDelete(DeleteBehavior.Cascade);
         base.OnModelCreating(modelBuilder);
     }
 }
