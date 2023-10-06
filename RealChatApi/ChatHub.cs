@@ -64,5 +64,9 @@ namespace RealChatApi
 
             return userId;
         }
+        public async Task NotifyGroupMembersUpdated(int groupId, List<string> groupMembers)
+        {
+            await Clients.Group(groupId.ToString()).SendAsync("GroupMembersUpdated", groupMembers);
+        }
     }
 }
