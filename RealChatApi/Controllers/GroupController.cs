@@ -43,6 +43,11 @@ namespace RealChatApi.Controllers
         {
             return await _groupService.SendMessage(groupId, messageRequest);
         }
+        [HttpGet("{groupId}/messages")]
+        public async Task<IActionResult> GetMessages(int groupId)
+        {
+            return await _groupService.GetGroupMessages(groupId);
+        }
         [HttpGet("{groupId}")]
         public async Task<IActionResult> GetGroupInfo(int groupId)
         {

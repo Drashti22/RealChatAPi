@@ -275,7 +275,7 @@ namespace RealChatApi.Services
             return new OkObjectResult(response);
         }
 
-        public async Task<IActionResult> GetGroupMessages(int groupId, bool includePreviousChat, DateTime timestampOfMemberAdded)
+        public async Task<IActionResult> GetGroupMessages(int groupId)
         {
             var currentUser = await GetCurrentLoggedInUser();
 
@@ -290,9 +290,21 @@ namespace RealChatApi.Services
             {
                 return new NotFoundObjectResult("Group not found.");
             }
-           
-            var messages = await _groupRepository.GetGroupMessagesAsync(groupId, includePreviousChat, timestampOfMemberAdded);
 
+            var memberPreferences = await _groupRepository.GetMemberPreferencesAsync(currentUser.Id, groupId);
+
+            IEnumerable<Message> messages;
+
+            if (memberPreferences.IncludePreviousChatPreference)
+            {
+                // Retrieve all messages for the group
+                messages = await _groupRepository.GetGroupMessagesAsync(groupId);
+            }
+            else
+            {
+                // Retrieve messages after the specified timestamp for the group
+                messages = await _groupRepository.GetMessagesAfterTimestampAsync(groupId, memberPreferences.TimestampOfMemberAdded);
+            }
 
             return new OkObjectResult(messages);
         }
