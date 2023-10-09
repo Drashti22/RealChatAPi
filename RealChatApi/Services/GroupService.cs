@@ -26,6 +26,7 @@ namespace RealChatApi.Services
         private readonly IHubContext<ChatHub> _hubContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IServiceProvider _serviceProvider;
+        private readonly Dictionary<string, string> userGroupMapping = new Dictionary<string, string>();
 
         public GroupService(IServiceProvider serviceProvider, UserManager<ApplicationUser> userManager, IGroupRepository groupRepository, IHttpContextAccessor httpContextAccessor, ApplicationDbContext context, IHubContext<ChatHub> hubContext)
         {
@@ -115,7 +116,9 @@ namespace RealChatApi.Services
             {
                 return new NotFoundObjectResult("User not found");
             }
+
             var userGroups = await _groupRepository.GetGroups();
+
             return new OkObjectResult(userGroups);
         }
         private bool IsUserAdminInGroup(int groupId, string userId)
@@ -166,24 +169,16 @@ namespace RealChatApi.Services
                     Console.WriteLine($"JoinTime for new member: {timestampNow}");
                     Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
                     group.GroupMembers.Add(newMember);
+                    foreach (var connectionId in _connections.GetConnections(memberId))
+                    {
+                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGroupUpdate", groupId);
+                    }
+                 
                     Console.WriteLine($"JoinTime for new member: {timestampNow}");
                     Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
 
-                    //if (requset.IncludePreviousChat)
-                    //{
-                    //    foreach (var trackedEntity in _Context.ChangeTracker.Entries().ToList())
-                    //    {
-                    //        trackedEntity.State = EntityState.Detached;
-                    //    }
-
-
-                    //    var previousChat = await _groupRepository.GetGroupMessagesAsync(groupId, requset.IncludePreviousChat, timestampBeforeAddingMembers);
-                    //    var previousChatList = previousChat.ToList();
-
-                    //    await _groupRepository.SendPreviousChatHistoryAsync(groupId, previousChatList, memberId, timestampBeforeAddingMembers, includePreviousChat: true);
-                    //}
+                   
                     await _Context.SaveChangesAsync();
-                    await _hubContext.Clients.Group(groupId.ToString()).SendAsync("GroupMembersUpdated", requset.MembersToAdd);
                     Console.WriteLine($"JoinTime for new member: {timestampNow}");
                     Console.WriteLine($"IncludePreviousChat value: {requset.IncludePreviousChat}");
 
@@ -212,6 +207,7 @@ namespace RealChatApi.Services
                         if (memberToRemove != null)
                         {
                             group.GroupMembers.Remove(memberToRemove);
+                            
                         }
                     }
                     else
@@ -219,7 +215,10 @@ namespace RealChatApi.Services
                         return new UnauthorizedObjectResult("You cannot remove an admin from the group.");
                     }
                     await _Context.SaveChangesAsync();
-                    await _hubContext.Clients.Group(groupId.ToString()).SendAsync("GroupMembersUpdated", requset.MembersToRemove);
+                    foreach (var connectionId in _connections.GetConnections(memberId))
+                    {
+                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGroupUpdate", groupId);
+                    }
                 }
             }
             var result = await _groupRepository.GetGroupWithMembersAsync(groupId);
@@ -236,18 +235,7 @@ namespace RealChatApi.Services
 
             return new OkObjectResult(response);
         }
-        //private async Task NotifyGroupMembersUpdated(int groupId)
-        //{
-        //    var group = await _groupRepository.GetGroupWithMembersAsync(groupId);
-
-        //    var groupMembers = group.GroupMembers
-        //        .Where(gm => gm.User != null)
-        //        .Select(gm => gm.User.Name)
-        //        .ToList();
-        //    Console.WriteLine($"Notifying group members updated for groupId: {groupId}");
-        //    // Notify connected clients about the updated group members
-        //    await _hubContext.Clients.Group(groupId.ToString()).SendAsync("GroupMembersUpdated", groupMembers);
-        //}
+       
         public async Task<IActionResult> SendMessage(int groupId, GroupMessageRequestDTO messageRequest)
         {
 
@@ -285,7 +273,6 @@ namespace RealChatApi.Services
                     await _hubContext.Clients.Client(connectionId).SendAsync("GroupMessage", message);
                 }
             }
-
             var response = new
             {
                 messageId = message.Id,
