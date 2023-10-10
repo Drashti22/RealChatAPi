@@ -372,7 +372,17 @@ namespace RealChatApi.Services
             bool isAdmin = await _Context.GroupRoles.AnyAsync(gr => gr.GroupId == groupId && gr.UserId == currentUser.Id && gr.Role == "Admin");
             if (isAdmin)
             {
+               
+                var memberIds = await _groupRepository.GetGroupMemberIdsAsync(groupId);
                 var removedGroup = await _groupRepository.RemoveGroup(group);
+
+                foreach (var memberId in memberIds)
+                {
+                    foreach (var connectionId in _connections.GetConnections(memberId))
+                    {
+                        await _hubContext.Clients.Client(connectionId).SendAsync("ReceiveGroupUpdate", groupId);
+                    }
+                }
                 if (removedGroup != null)
                 {
                     return new OkObjectResult(new {message = "Group Removed Successfully!!"});
