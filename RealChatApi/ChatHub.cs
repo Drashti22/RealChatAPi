@@ -26,6 +26,7 @@ namespace RealChatApi
         {
             var connectionId = Context.ConnectionId;
             var userId = GetUserId();
+            Console.WriteLine($"User {userId} connected with connection ID {connectionId}");
 
             _connections.Add(userId, connectionId);
             Console.WriteLine($"User {userId} connected with connection ID {connectionId}");
@@ -64,5 +65,42 @@ namespace RealChatApi
 
             return userId;
         }
+        //[HubMethodName("GroupMembersUpdated")]
+        //public async Task NotifyGroupMembersUpdated(int groupId, string[] groupMembers)
+        //{
+        //    Console.WriteLine($"NotifyGroupMembersUpdated called for Group ID: {groupId}");
+        //    try
+        //    {
+
+        //        await Clients.Group(groupId.ToString()).SendAsync("GroupMembersUpdated", groupId, groupMembers);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception
+        //        Console.Error.WriteLine($"Error in NotifyGroupMembersUpdated: {ex.Message}");
+        //        throw; // Rethrow the exception if needed
+        //    }
+        //}
+
+        //[HubMethodName("GroupsUpdated")]
+        //public async Task NotifyGroupsUpdated(int groupId)
+        //{
+        //    try
+        //    {
+        //        // Broadcast the event to clients in the specific group
+        //        await Clients.Group(groupId.ToString()).SendAsync("GroupsUpdated", groupId);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.Error.WriteLine($"Error in NotifyGroupsUpdated: {ex.Message}");
+        //        throw; // Rethrow the exception if needed
+        //    }
+        //}
+        //public async Task JoinGroup(int groupId)
+        //{
+        //    await Groups.AddToGroupAsync(Context.ConnectionId, groupId.ToString());
+        //}
+
+       
     }
 }

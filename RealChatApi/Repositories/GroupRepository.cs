@@ -110,7 +110,6 @@ namespace RealChatApi.Repositories
 
             return memberPreferences ?? new GroupMemberPreferences();
         }
-
         //public async Task SendPreviousChatHistoryAsync(int groupId,IEnumerable<Message> previousChat, string newMemberId, DateTime timestampBeforeAddingMembers, bool includePreviousChat = false)
         //{
         //    // Assuming the new member is not already part of the group, add them to the group
